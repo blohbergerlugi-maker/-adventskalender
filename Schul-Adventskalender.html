@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Schul-Adventskalender</title>
+<style id="css">
+/* VOICE  festive school occasion: warm and bright for children, tidy enough for teachers
+   IDEA   a real printed cardboard advent calendar: one winter picture, perforated doors of mixed sizes, a bow to hang it
+   PICTURE the calendar itself (village, school, big tree, snowman); on the start page the snowy hill with a waving Wichtel
+   COLOUR pine-green night ground, berry red, fir green, snow white, gold accent; every colour editable in the admin area
+   TYPE   Outfit 800 for numbers and titles, Nunito for text
+   LAYOUT start: centred code card beside the Wichtel; app: title strip, calendar full width, Wichtel band on snow; phone: 4 columns */
+:root{--bg:#0f3b2d;--d1:#c8102e;--d2:#1e6a47;--d3:#fbf7f0;--acc:#f4c542;--acci:#1d2522;--ink:#fff;--btn:#0f3b2d;--df:'Outfit';--snow:color-mix(in srgb,var(--bg) 6%,#fff)}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 'Nunito',system-ui,sans-serif;overflow-x:clip;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+[hidden]{display:none!important}
+.band{padding-block:clamp(20px,3.4vw,44px);padding-left:max(5vw,16px,env(safe-area-inset-left,0px));padding-right:max(5vw,16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1240px;margin:0 auto}
+.sky,.bgimg{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.bgimg{background-size:cover;background-position:center}
+.bgimg::after{content:"";position:absolute;inset:0;background:linear-gradient(color-mix(in srgb,var(--bg) 60%,transparent),color-mix(in srgb,var(--bg) 25%,transparent))}
+.dot{fill:var(--ink)}.spark{fill:var(--acc)}
+.glow{background:radial-gradient(900px 520px at 82% -10%,color-mix(in srgb,var(--acc) 13%,transparent),transparent 70%)}
+h1{font:800 clamp(32px,5vw,52px)/1.05 var(--df),'Outfit',system-ui,sans-serif;letter-spacing:-.02em;margin:0;text-wrap:balance}
+.sub{margin:10px 0 0;font-size:17px;opacity:.9;max-width:62ch}
+.ghost{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;min-width:44px;padding:0 16px;border-radius:999px;border:1.5px solid color-mix(in srgb,var(--ink) 45%,transparent);background:transparent;cursor:pointer;font-weight:800}
+.ghost:hover{background:color-mix(in srgb,var(--ink) 12%,transparent)}
+.ghost svg{width:18px;height:18px}
+/* Startseite */
+.start{position:relative;isolation:isolate;min-height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+.stop{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:16px}
+.brand{font:800 18px/1.2 var(--df),'Outfit',sans-serif}
+.shero{position:relative;z-index:1;flex:1;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px 56px;padding-top:8px;padding-bottom:max(70px,calc(min(18vw,260px) - 10px))}
+.scard{width:min(520px,100%);background:#fff;color:#1d2522;border-radius:26px;padding:clamp(22px,3.5vw,38px);box-shadow:0 30px 60px rgba(0,0,0,.35);color-scheme:light}
+.scard h1{color:var(--btn)}
+.scard .sub{color:#46524d;opacity:1}
+.sdate{margin:16px 0 0;font-size:15px;color:#5a6762}
+.sdate b{color:#1d2522}
+.lrow{display:flex;flex-wrap:wrap;gap:10px}
+.lrow .inp{flex:1 1 220px}
+.swave{width:clamp(170px,22vw,290px)}
+.swave svg{display:block;width:100%;height:auto}
+.ground{position:absolute;left:0;bottom:0;width:100%;height:min(18vw,260px);z-index:0}
+.g1{fill:color-mix(in srgb,var(--bg) 82%,var(--ink))}
+.tree{fill:color-mix(in srgb,var(--d2) 68%,#000)}
+.trunk{fill:color-mix(in srgb,var(--d2) 35%,#000)}
+.cap,.s1{fill:var(--snow)}
+.s2{fill:color-mix(in srgb,var(--snow) 86%,var(--bg))}
+.wall{fill:color-mix(in srgb,var(--d1) 80%,#000)}
+.wall3{fill:color-mix(in srgb,var(--d3) 62%,var(--bg))}
+.roof{fill:color-mix(in srgb,var(--bg) 50%,#000)}
+.win{fill:var(--acc)}
+.dr{fill:color-mix(in srgb,var(--bg) 35%,#000)}
+/* Kalender-Seite */
+.appm{position:relative;isolation:isolate}
+.apph{position:relative;z-index:1;padding-bottom:clamp(10px,1.6vw,18px)}
+.top{display:flex;flex-wrap:wrap;gap:16px 32px;align-items:flex-end;justify-content:space-between}
+.top h1{max-width:22ch}
+.status{display:flex;align-items:center;gap:12px 20px;flex-wrap:wrap}
+.tday{line-height:1.35}
+.tday b{display:block;font:700 17px/1.3 var(--df),'Outfit',system-ui,sans-serif}
+.tday span{font-size:15px;opacity:.9}
+.who{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.hi{font-weight:800;line-height:1.25}
+.hi small{display:block;font-weight:600;font-size:14px;opacity:.85}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px 0 6px;border-radius:999px;background:color-mix(in srgb,var(--ink) 14%,transparent);font-weight:800}
+.chip b{font:800 18px/1 'Outfit',sans-serif}
+.coin{flex:none;width:28px;height:28px}
+.board{position:relative;z-index:1;isolation:isolate;overflow:hidden;padding-top:clamp(36px,4vw,52px);padding-bottom:max(56px,calc(min(18vw,260px) - 22px))}
+.frame{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:clamp(7px,1.3vw,15px);border-radius:10px;background:linear-gradient(160deg,#ffffff,#ebe3d3);box-shadow:0 3px 0 #cbbfa9,0 28px 50px rgba(0,0,0,.42)}
+.bow{position:absolute;left:50%;top:0;z-index:3;width:clamp(96px,12vw,150px);translate:-50% -58%;filter:drop-shadow(0 4px 4px rgba(0,0,0,.3))}
+.bow .b1{fill:var(--d1)}.bow .b2{fill:color-mix(in srgb,var(--d1) 75%,#000)}
+.grid{position:relative;display:grid;gap:clamp(4px,.7vw,8px);grid-template-columns:repeat(8,minmax(0,1fr));grid-template-rows:repeat(5,minmax(0,1fr));aspect-ratio:8/4.3;grid-template-areas:"p1 p2 p2 p3 . p4 p5 p6" "p7 p8 p9 p9 p10 p11 p5 p12" "p7 p13 p9 p9 p14 p11 p15 p12" "p16 p16 p17 p18 p18 p19 p20 ." "p21 p22 p17 p23 p24 p24 p20 .";border-radius:4px;background:var(--scene,none) 0 0/100% 100% no-repeat,var(--bg)}
+.cell{position:relative;grid-area:var(--ad);perspective:1200px}
+.cell.open{z-index:2}
+.in{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;gap:2px;border:0;padding:4px;border-radius:4px;background:#fbf7f0;color:#1d2522;box-shadow:inset 0 3px 10px rgba(0,0,0,.4);cursor:pointer;container-type:size;width:100%}
+.in svg{width:min(58cqmin,120px);height:auto}
+.in small{font-weight:800;font-size:13px;line-height:1.1}
+.door{position:absolute;inset:0;border:0;padding:0;background:none;cursor:pointer;transform-origin:left center;transform-style:preserve-3d;transition:transform 1s cubic-bezier(.3,.7,.2,1)}
+.face{position:absolute;inset:0;border-radius:4px;-webkit-backface-visibility:hidden;backface-visibility:hidden}
+.front{background-image:var(--scene,none);background-size:var(--bw) var(--bh);background-position:var(--bx,0) var(--by,0);background-repeat:no-repeat;background-color:var(--bg);box-shadow:inset 0 0 0 1px rgba(0,0,0,.3),0 1px 0 rgba(255,255,255,.2);container-type:size}
+.front::after{content:"";position:absolute;inset:3px;border:2px dashed rgba(255,255,255,.75);border-radius:3px;pointer-events:none}
+.back{transform:rotateY(180deg);background:linear-gradient(135deg,#efe7d8,#d6cbb7);box-shadow:inset 0 0 0 1px rgba(0,0,0,.18)}
+.badge{position:absolute;display:grid;place-items:center;width:max(30px,min(46cqmin,74px));aspect-ratio:1;border-radius:50%;background:var(--bc);color:var(--nc);font:800 max(15px,min(23cqmin,38px))/1 var(--df),'Outfit',sans-serif;box-shadow:0 0 0 max(2px,1.6cqmin) rgba(255,255,255,.7),0 3px 6px rgba(0,0,0,.35)}
+.b-c{left:50%;top:50%;translate:-50% -50%}.b-tl{left:13%;top:13%}.b-tr{right:13%;top:13%}.b-bl{left:13%;bottom:13%}.b-br{right:13%;bottom:13%}
+@media(hover:hover){.door:hover{transform:rotateY(-13deg)}}
+.cell.open .door{transform:rotateY(-108deg);pointer-events:none}
+.cell.today .front{box-shadow:inset 0 0 0 3px var(--acc),0 0 24px color-mix(in srgb,var(--acc) 75%,transparent)}
+.cell.today .badge{left:50%;top:50%;right:auto;bottom:auto;translate:-50% -50%}
+.tag{position:absolute;left:50%;bottom:5px;translate:-50% 0;padding:2px 9px;border-radius:999px;background:var(--acc);color:var(--acci);font:800 13px/1.25 'Nunito',sans-serif;white-space:nowrap}
+.snow{position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden}
+.snow i{position:absolute;top:-12px;border-radius:50%;background:#fff;animation:fall linear infinite;will-change:transform}
+@keyframes fall{to{transform:translate3d(var(--dx),var(--h,900px),0)}}
+/* Wichtel */
+.wich{background:var(--snow);color:#1d2522;padding-top:4px}
+.wg{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:12px 44px;align-items:center}
+.ava svg{display:block;width:100%;height:auto}
+.wich h2{margin:0;font:800 clamp(28px,3.6vw,40px)/1.08 var(--df),'Outfit',sans-serif;letter-spacing:-.015em;color:color-mix(in srgb,var(--bg) 35%,#0b1210)}
+.purse{display:inline-flex;align-items:center;gap:10px;margin:14px 0 6px;padding:8px 18px 8px 10px;border-radius:999px;background:#fff;box-shadow:0 2px 0 rgba(0,0,0,.08);font-weight:800;font-size:17px;color:#1d2522}
+.purse b{font:800 30px/1 'Outfit',sans-serif}
+.purse .coin{width:34px;height:34px}
+.wtxt p{margin:6px 0 0;max-width:62ch}
+.foot{background:var(--snow);color:color-mix(in srgb,var(--bg) 25%,#0b1210);padding-top:0}
+.how{display:flex;flex-wrap:wrap;gap:8px 32px;justify-content:space-between;align-items:baseline;border-top:1px solid color-mix(in srgb,var(--bg) 14%,transparent);padding-top:16px}
+.how p{margin:0;max-width:74ch}
+.note{font-size:14px;opacity:.8}
+/* Dialoge */
+.ov{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:16px;background:rgba(6,12,10,.64)}
+.card{width:min(440px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:#fff;color:#1d2522;border-radius:22px;box-shadow:0 24px 60px rgba(0,0,0,.4);color-scheme:light}
+.card.wide{width:min(900px,100%)}
+.card:fullscreen{width:100%;max-height:none;border-radius:0}
+.card:fullscreen .cbody>p{font-size:clamp(20px,2.3vw,30px)}
+.chd{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:14px;padding:14px 16px 14px 18px;background:var(--hc,#1d2522);color:#fff}
+.chd h2{margin:0;font:800 clamp(22px,3vw,30px)/1.1 var(--df),'Outfit',sans-serif;letter-spacing:-.01em}
+.num{flex:none;display:grid;place-items:center;width:52px;height:52px;border-radius:50%;background:var(--acc);color:var(--acci);font:800 24px/1 var(--df),'Outfit',sans-serif;box-shadow:0 0 0 3px rgba(255,255,255,.6)}
+.x{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:50%;border:0;background:rgba(0,0,0,.16);cursor:pointer;color:inherit}
+.chd .x:first-of-type{margin-left:auto}
+.x svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
+.cbody{padding:20px 22px 24px}
+.cbody>p{margin:0 0 12px;font-size:17px}
+.f{display:block;font-weight:800;font-size:15px;margin:14px 0 6px}
+.inp{width:100%;min-height:48px;padding:10px 14px;font-size:16px;border:1.5px solid #c6cfcb;border-radius:12px;background:#fff;color:#1d2522}
+.inp.bad{border-color:#b3261e}
+.codein{font:800 22px/1 'Outfit',sans-serif;letter-spacing:.06em;text-transform:uppercase;text-align:center}
+.big{min-height:58px}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 20px;border:0;border-radius:12px;background:var(--btn);color:#fff;font-weight:800;cursor:pointer;text-decoration:none;text-align:center}
+.btn.big{min-height:58px;padding:0 26px;font-size:18px}
+.btn.sec{background:#edf1ef;color:#1d2522}
+.btn:disabled,.btn.off{opacity:.5;cursor:not-allowed}
+.full{width:100%}
+.msg{min-height:1.4em;margin:10px 0 0;font-size:15px;font-weight:700;color:#b3261e}
+.acts{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.hint{font-size:14px;color:#5a6762;margin:6px 0 0;font-weight:400}
+.earn{display:inline-flex;align-items:center;gap:8px;margin:0 0 14px;padding:6px 16px 6px 8px;border-radius:999px;background:#fff4cf;color:#5b4300;font-weight:800}
+.files{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:16px}
+.file{margin:0;border:1px solid #dfe5e2;border-radius:14px;overflow:hidden;background:#f6f8f7}
+.file.big{grid-column:1/-1}
+.file img,.file video{display:block;width:100%;max-height:min(62vh,560px);object-fit:contain;background:#101614}
+.file figcaption{padding:8px 12px;font-size:14px;color:#5a6762}
+a.doc{display:grid;gap:2px;padding:14px 16px;color:#1d2522;text-decoration:none}
+a.doc b{font:800 15px/1.2 'Outfit',sans-serif;color:var(--btn)}
+a.doc span{font-weight:700;overflow-wrap:anywhere}
+a.doc small{font-size:13px;color:#5a6762}
+a.doc:hover{background:#edf1ef}
+/* Shop */
+.shop{display:grid;grid-template-columns:minmax(0,230px) minmax(0,1fr);gap:20px;padding:18px 20px 22px}
+.sprev{position:sticky;top:96px;align-self:start;padding:10px 10px 12px;border-radius:18px;background:linear-gradient(#e9f2ee,#fff);text-align:center}
+.sprev svg{display:block;width:100%;height:auto}
+.cats{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.items{display:grid;grid-template-columns:repeat(auto-fill,minmax(122px,1fr));gap:10px}
+.item{display:grid;gap:3px;padding:8px 8px 10px;border:1.5px solid #d3dbd7;border-radius:14px;background:#fff;cursor:pointer;text-align:center}
+.item[aria-pressed=true]{border-color:var(--btn);box-shadow:0 0 0 2px var(--btn)}
+.item svg{width:100%;height:88px;border-radius:10px;background:#eef3f1}
+.item b{font-size:14px;line-height:1.2}
+.item small{font-size:13px;font-weight:800;color:#5a6762}
+.item small.own{color:#1e6a47}
+.sbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid #e2e8e5}
+.sbar p{margin:0;flex:1 1 200px;font-weight:700}
+.swatches{display:flex;flex-wrap:wrap;gap:8px}
+.swatch{width:44px;height:44px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 1.5px #c6cfcb;cursor:pointer}
+.swatch[aria-pressed=true]{box-shadow:0 0 0 3px var(--btn)}
+/* Admin */
+.adm{position:fixed;top:0;right:0;bottom:0;z-index:40;width:min(620px,100%);display:flex;flex-direction:column;background:#fff;color:#1d2522;box-shadow:-20px 0 60px rgba(0,0,0,.35);color-scheme:light}
+@media(min-width:1120px){body.ao #app{margin-right:620px}}
+.ahd{display:flex;align-items:center;gap:12px;padding:12px 14px 12px 20px;border-bottom:1px solid #e2e8e5}
+.ahd h2{margin:0;font:800 22px/1.1 'Outfit',sans-serif}
+.ahd .x{margin-left:auto;background:#edf1ef}
+.tabs{display:flex;gap:2px;padding:6px 12px 0;border-bottom:1px solid #e2e8e5;overflow-x:auto}
+.tabs button{flex:none;min-height:46px;padding:0 12px;border:0;border-bottom:3px solid transparent;background:none;font-weight:800;color:#5a6762;cursor:pointer}
+.tabs button[aria-selected=true]{color:#1d2522;border-color:var(--btn)}
+.abody{flex:1;overflow:auto;padding:18px 20px 28px}
+.abar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 20px;border-top:1px solid #e2e8e5;background:#f6f8f7}
+.abar .st{flex:1 1 180px;font-size:14px;color:#5a6762}
+.sec h3{margin:26px 0 8px;font:800 18px/1.25 'Outfit',sans-serif}
+.sec h3:first-child{margin-top:0}
+.sec h3 .hint{font:400 15px 'Nunito',sans-serif}
+.banner{margin:0 0 14px;padding:10px 14px;border-radius:12px;background:#fff3d2;color:#5b4300;font-size:14px}
+.dpick{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px}
+.dpick button{position:relative;min-height:44px;border:1.5px solid #d3dbd7;border-radius:10px;background:#fff;font-weight:800;cursor:pointer}
+.dpick button.has::after{content:"";position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--acc);box-shadow:0 0 0 1px rgba(0,0,0,.2)}
+.dpick button[aria-pressed=true]{background:var(--btn);border-color:var(--btn);color:#fff}
+textarea.inp{min-height:150px;resize:vertical;line-height:1.5}
+.row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.flist{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:6px}
+.flist li{display:flex;align-items:center;gap:10px;padding:6px 6px 6px 12px;border:1px solid #e2e8e5;border-radius:10px}
+.flist li span{flex:1;font-weight:700;overflow-wrap:anywhere}
+.flist small{font-weight:400;color:#5a6762}
+.mini{flex:none;min-height:40px;padding:0 12px;border:1.5px solid #d3dbd7;border-radius:10px;background:#fff;font-weight:800;cursor:pointer}
+.mini.del{color:#b3261e}
+.up{position:relative;overflow:hidden}
+.up input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.presets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.preset{display:flex;align-items:center;gap:12px;min-height:52px;padding:8px 12px;border:1.5px solid #d3dbd7;border-radius:12px;background:#fff;font-weight:800;cursor:pointer;text-align:left}
+.sw{display:flex;padding-left:5px}
+.sw i{width:20px;height:20px;margin-left:-5px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #d3dbd7}
+.colors{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.colors label{display:grid;gap:6px;font-size:14px;font-weight:800}
+input[type=color]{width:100%;height:44px;padding:3px;border:1.5px solid #d3dbd7;border-radius:10px;background:#fff;cursor:pointer}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{min-height:44px;padding:0 14px;border:1.5px solid #d3dbd7;border-radius:10px;background:#fff;font-weight:800;cursor:pointer}
+.seg button[aria-pressed=true]{background:#1d2522;border-color:#1d2522;color:#fff}
+.tog{display:flex;align-items:center;gap:10px;min-height:44px;font-weight:700;cursor:pointer}
+.tog input{flex:none;width:22px;height:22px;accent-color:var(--btn)}
+.plist{display:grid;gap:8px;margin-top:12px}
+.prow{border:1.5px solid #e2e8e5;border-radius:14px;padding:10px}
+.prow.offp{background:#f6f6f6;opacity:.85}
+.pmain{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,.8fr);gap:8px}
+.pact{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:6px}
+.pact .tog{margin-right:auto}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(176px,1fr));gap:6px;margin-top:10px}
+.cchip{display:flex;align-items:center;gap:6px;min-height:44px;padding:2px 4px 2px 10px;border:1px solid #e2e8e5;border-radius:10px;font-size:14px}
+.cchip b{width:1.6em;font-family:'Outfit',sans-serif}
+.cchip span{flex:1;overflow-wrap:anywhere}
+.cchip.off span{text-decoration:line-through;color:#8a958f}
+.cchip input{width:20px;height:20px;accent-color:var(--btn)}
+.cchip button{min-height:36px;padding:0 8px;border:1px solid #d3dbd7;border-radius:8px;background:#fff;font-weight:800;font-size:13px;cursor:pointer}
+.prices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 14px}
+.prices label{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px}
+.prices span{flex:1}
+.prices .inp{width:96px;min-height:42px}
+.scroll{overflow-x:auto}
+.log{width:100%;border-collapse:collapse;font-size:14px}
+.log th,.log td{padding:7px 8px;border-bottom:1px solid #e2e8e5;text-align:left;white-space:nowrap}
+.log td:first-child{white-space:normal}
+.log .r{text-align:right;font-variant-numeric:tabular-nums}
+.toast{position:fixed;left:50%;bottom:20px;z-index:60;transform:translateX(-50%);max-width:calc(100% - 32px);padding:12px 18px;border-radius:12px;background:#1d2522;color:#fff;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+@media(max-width:700px){.swave{order:-1;width:150px;margin-bottom:-14px}.wg{grid-template-columns:minmax(0,1fr);text-align:center}.ava{width:min(240px,70%);margin:0 auto}.wich .acts{justify-content:center}}
+@media(max-width:640px){.grid{grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(7,minmax(0,1fr));aspect-ratio:4/6.4;grid-template-areas:"p1 p2 p3 p4" "p5 p6 p6 p7" "p8 p6 p6 p9" "p10 p11 p12 p13" "p14 p14 p15 p16" "p17 p18 p19 p20" "p21 p22 p23 p24"}.cell{grid-area:var(--am)}.front::after{inset:2px;border-width:1.5px}}
+@media(max-width:600px){.crow,.pmain{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.pmain input:first-child{grid-column:1/-1}.colors{grid-template-columns:repeat(2,minmax(0,1fr))}.dpick{grid-template-columns:repeat(6,minmax(0,1fr))}.row,.presets,.prices{grid-template-columns:minmax(0,1fr)}.cbody{padding:16px 16px 20px}.shop{grid-template-columns:minmax(0,1fr)}.sprev{position:static;width:190px;margin:0 auto}}
+@media(prefers-reduced-motion:reduce){.snow{display:none}.door{transition:none}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="application/json" id="state">{"v":2,"salt":"a82408d35b7e142d","sample":false,"epoch":1,"coinEpoch":2,"adminHash":"a44da71c57a5731f6b26dc219386a3514f1eea8e50c346f4c9f8eea5352e2d14","design":{"title":"Unser Schul-Adventskalender","subtitle":"Von unseren Schülerinnen und Schülern für alle Lehrkräfte: jeden Tag ein Türchen.","loginHint":"Ihren Code bekommen Sie vom Adventskalender-Team unserer Schülerinnen und Schüler.","font":"Outfit","colors":{"bg":"#0f3b2d","d1":"#c8102e","d2":"#1e6a47","d3":"#fbf7f0","acc":"#f4c542","ink":"#ffffff"},"order":"mix","snow":false,"sound":false,"bgImage":null},"settings":{"codeMode":"person","lockMode":"off","lockHours":24,"dateLock":true,"year":2026,"reviewOpen":true,"avatar":true,"coins":10,"bonus":5,"prices":{}},"people":[{"id":"p15ad459","name":"Frau Becker","role":"lehrer","group":"3a","on":true,"h":["7bee21e96890b1c93cfd9e16","122956cde5c3a1a2a86f22c0","e30e68ab4f29e91d4cb6b22a","66c3aee9119ae2405b5650aa","87c4a260b4b10224372fcbb8","ea05790e8ce93318a710d742","644013e7a9c70eec9e95aadb","70b275baf5e1f1d46e119f67","7e9248c37fecca74ad2886c5","9722e215791f052a7b172ab1","fee2cf977cc1c85d784fdaeb","d9906a1ca9428ca1b9a88a8d","530c7c354e51f8f4894c7046","7fbc1bb850488179fde595d0","b5a421987d68c19023f3f5fb","d0e9a26c6e77ffa8b79b9856","730cee77adb587cb0fb4784a","1d56af6a8facee98f271ae98","522fd8d309aeb4943d617ab8","ff40ecc02892f32088811003","99971f7fe2ffe64b30e13e81","798ec6caf96482cc2413b16c","498021f35187acbf4b12fbe9","a49ec571e1fcae1e3242b0a4"],"off":[],"a":"fe0b311a12423a4d901f648c"},{"id":"p22b9c7d","name":"Herr Yilmaz","role":"lehrer","group":"4b","on":true,"h":["efb8c18775f234915baa2c5a","0c3f28cd51e80d81efdb479f","fd179ed90709ba47a2c7e945","d7bb5638fda16329ddeb687c","3b663d9d16b1efd13e81051a","2f3bad09d15c198c5b73c9a0","8adf373d3e4075d1eb65a511","8e30e5f0c6b4eeb5f6c5ca13","49f9dbf4bfef56f3a4eb3839","0dfd3ac4db9f33224fe9ff78","67aea6f99ea31a5d70612e17","8f0b3c6ccdd5221a72cdf460","d43c16c8003c580b1481ceef","b92961234534154e442b78c1","9cfc2c3adb548ca72e8fcb3a","cd54fe283745af9883f78a85","140956bc55c306991af48251","6ea6c72006b8389503cb42fb","6552c85c0b79f68277a3a144","4d278fbf9d833784970af4a2","8690ef6c05adac37a4b49aa6","de41e17570fc8d13dc577694","b4863778e11bda56cc44e714","43b31b29ada4d4ed9db546d6"],"off":[],"a":"04e22cb3dce6a4112de3c6dd"},{"id":"te2ab3e04","name":"Frau Schmidt","role":"lehrer","group":"1c","on":true,"h":["","","","","","","","","","","","","","","","","","","","","","","",""],"off":[],"a":"364fd12a051118ad50776ced"},{"id":"t50300d06","name":"Herr Nowak","role":"lehrer","group":"2a","on":true,"h":["","","","","","","","","","","","","","","","","","","","","","","",""],"off":[],"a":"579e9e1b86a2ca122e66193d"},{"id":"t768bfcae","name":"Frau Jensen","role":"lehrer","group":"","on":true,"h":["","","","","","","","","","","","","","","","","","","","","","","",""],"off":[],"a":"99b93409cafcef335ee02ae7"},{"id":"tc80669ab","name":"Herr Brandt","role":"lehrer","group":"","on":true,"h":["","","","","","","","","","","","","","","","","","","","","","","",""],"off":[],"a":"74a0ba501bffb1f04fc96287"}],"doors":[{"title":"Willkommen im Advent!","text":"Heute beginnt unser Adventskalender, den die Schülerinnen und Schüler für Sie gestaltet haben. Den ersten Adventskranz hat Johann Hinrich Wichern 1839 in Hamburg aufgehängt: ein Wagenrad mit vielen kleinen roten und vier großen weißen Kerzen.\n\nÖffnen Sie ab jetzt jeden Tag ein Türchen und sammeln Sie Münzen für Ihren Wichtel.","link":"","linkLabel":"","files":[]},{"title":"Wer bin ich?","text":"Ich bin grün, auch mitten im Winter. Im Dezember trage ich Kugeln, Sterne und Lichter. Wer bin ich?\n\nLösung: der Tannenbaum.","link":"","linkLabel":"","files":[]},{"title":"Kleine Pause","text":"Stehen Sie für eine Minute auf, strecken Sie sich und atmen Sie tief durch. Wer mag, macht die Pause zusammen mit der nächsten Klasse.","link":"","linkLabel":"","files":[]},{"title":"Barbarazweige","text":"Heute ist Barbaratag. Wer heute einen Kirsch- oder Forsythienzweig schneidet und ins Wasser stellt, hat mit etwas Glück an Weihnachten Blüten im Zimmer. Vielleicht auch im Lehrerzimmer?","link":"","linkLabel":"","files":[]},{"title":"Weihnachten in den Niederlanden","text":"In den Niederlanden ist heute ein großer Tag: Am Abend des 5. Dezember bringt Sinterklaas die Geschenke. Viele Familien schreiben sich dazu lustige Gedichte.","link":"","linkLabel":"","files":[]},{"title":"Nikolaus","text":"Haben Sie gestern Ihre Stiefel geputzt? Der Brauch geht auf den heiligen Nikolaus zurück, der vor langer Zeit in Myra lebte. Das liegt in der heutigen Türkei.","link":"","linkLabel":"","files":[]},{"title":"Bastelzeit: Schneeflocke","text":"Falten Sie ein quadratisches Blatt zweimal zur Hälfte und dann noch einmal schräg zu einem Dreieck. Schneiden Sie kleine Formen an den Rändern heraus und falten Sie vorsichtig auf. Jede Schneeflocke wird anders!","link":"","linkLabel":"","files":[]},{"title":"Plätzchen-Rechnen","text":"Lena backt 3 Bleche mit je 12 Plätzchen. Ihr Bruder nascht 5 davon. Wie viele Plätzchen bleiben übrig?\n\nLösung: 31 Plätzchen.","link":"","linkLabel":"","files":[]},{"title":"Wussten Sie schon?","text":"Fast alle Schneeflocken haben sechs Arme. Das liegt daran, wie sich Wasserteilchen beim Gefrieren aneinanderlegen. Trotzdem sieht keine Flocke genau wie die andere aus.","link":"","linkLabel":"","files":[]},{"title":"Ihr Lieblingsmoment","text":"Was ist Ihr schönster Moment im Advent? Erzählen Sie es heute Ihrer Klasse. Die Schülerinnen und Schüler sind gespannt.","link":"","linkLabel":"","files":[]},{"title":"Weihnachten in Mexiko","text":"In Mexiko feiern viele Familien vom 16. bis 24. Dezember Las Posadas: Sie ziehen singend von Haus zu Haus, und zum Abschluss wird oft eine Piñata zerschlagen.","link":"","linkLabel":"","files":[]},{"title":"Wörter-Jagd","text":"Wie viele Wörter finden Sie in WEIHNACHTSBAUM? Jeder Buchstabe darf so oft vorkommen, wie er im Wort steht. Beispiele: BAUM, NACHT, HEU. Wer im Kollegium findet die meisten?","link":"","linkLabel":"","files":[]},{"title":"Luciafest","text":"In Schweden und Dänemark ist heute Luciatag. Ein Mädchen trägt einen Kranz mit Lichtern auf dem Kopf, und viele Kinder ziehen in weißen Gewändern singend durch Schulen und Kirchen.","link":"","linkLabel":"","files":[]},{"title":"Lied des Tages","text":"Heute wünschen wir uns „Kling, Glöckchen, klingelingeling“. Das Lied ist schon über 150 Jahre alt. Welches alte Weihnachtslied mögen Sie am liebsten?","link":"","linkLabel":"","files":[]},{"title":"Experiment: Salz und Eis","text":"Legen Sie zwei Eiswürfel auf je einen Teller und streuen Sie auf einen davon etwas Salz. Was passiert? Salz senkt den Gefrierpunkt, deshalb taut der gesalzene Eiswürfel schneller.","link":"","linkLabel":"","files":[]},{"title":"Weihnachten in Großbritannien","text":"In Großbritannien gehören Christmas Crackers zum Festessen am 25. Dezember: Papphülsen, die beim Auseinanderziehen knallen. Darin stecken eine Papierkrone, ein kleiner Witz und ein Geschenk.","link":"","linkLabel":"","files":[]},{"title":"Bewegungspause","text":"Wie wäre es heute mit einer Rentier-Pause? Zehn Hopser auf der Stelle, fünf Kniebeugen und dann ganz leise auf Zehenspitzen zurück zum Pult.","link":"","linkLabel":"","files":[]},{"title":"Wer bin ich?","text":"Ich hänge am Baum, bin rund und glänze. Essen kann man mich aber nicht. Wer bin ich?\n\nLösung: die Christbaumkugel.","link":"","linkLabel":"","files":[]},{"title":"Gute Tat","text":"Schreiben Sie heute eine Weihnachtskarte für jemanden, der sich darüber freut: das Sekretariat, den Hausmeister oder eine Kollegin.","link":"","linkLabel":"","files":[],"openDay":18},{"title":"Wussten Sie schon?","text":"Lebkuchen werden in Nürnberg schon seit Jahrhunderten gebacken. „Nürnberger Lebkuchen“ ist heute sogar ein geschützter Name.","link":"","linkLabel":"","files":[],"openDay":18},{"title":"Der kürzeste Tag","text":"Um den 21. Dezember ist Wintersonnenwende: der Tag mit den wenigsten Stunden Sonnenlicht im ganzen Jahr. Danach werden die Tage langsam wieder länger.","link":"","linkLabel":"","files":[]},{"title":"Weihnachten in Australien","text":"In Australien ist im Dezember Sommer. Viele Familien feiern Weihnachten mit einem Picknick oder am Strand, und manchmal kommt der Weihnachtsmann sogar auf einem Surfbrett.","link":"","linkLabel":"","files":[]},{"title":"Vorlesezeit","text":"Kurz vor dem Fest wünschen wir uns eine Weihnachtsgeschichte zum Vorlesen. Vielleicht in der letzten Stunde vor den Ferien?","link":"","linkLabel":"","files":[],"openDay":18},{"title":"Frohe Weihnachten!","text":"Alle Schülerinnen und Schüler danken Ihnen für dieses Jahr und wünschen Ihnen und Ihren Familien ein frohes Fest, erholsame Ferien und einen guten Start ins neue Jahr.","link":"","linkLabel":"","files":[],"openDay":18}]}</script>
+<script id="app-js">
+{
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const CSS=document.getElementById('css').textContent;
+const JS=document.getElementById('app-js').textContent;
+
+/* ===== Grundwerte ===== */
+const DEF={bg:'#0f3b2d',d1:'#c8102e',d2:'#1e6a47',d3:'#fbf7f0',acc:'#f4c542',ink:'#ffffff'};
+const DEFD=()=>({title:'Unser Schul-Adventskalender',subtitle:'',loginHint:'Ihren Code bekommen Sie vom Adventskalender-Team.',font:'Outfit',colors:{...DEF},order:'mix',snow:true,sound:true,bgImage:null});
+const PRESETS=[
+ {n:'Tannengrün',c:{...DEF}},
+ {n:'Winternacht',c:{bg:'#18305e',d1:'#e9f0fb',d2:'#3d74d6',d3:'#ffffff',acc:'#9be2ff',ink:'#ffffff'}},
+ {n:'Zuckerstange',c:{bg:'#a5122b',d1:'#ffffff',d2:'#1e6a47',d3:'#f9d7de',acc:'#ffd23f',ink:'#ffffff'}},
+ {n:'Skandinavisch',c:{bg:'#efe9df',d1:'#c0392b',d2:'#2f4f46',d3:'#ffffff',acc:'#c0392b',ink:'#24312c'}}];
+const FONTS={'Outfit':'Outfit:wght@600;800','Fredoka':'Fredoka:wght@600;700','Playfair Display':'Playfair+Display:wght@700;900','Mountains of Christmas':'Mountains+of+Christmas:wght@700','Nunito':'Nunito:wght@400;600;700;800;900'};
+const FL={'Outfit':'Outfit (modern)','Fredoka':'Fredoka (verspielt)','Playfair Display':'Playfair (elegant)','Mountains of Christmas':'Mountains of Christmas (weihnachtlich)','Nunito':'Nunito (rund)'};
+const COLS=[['bg','Hintergrund'],['d1','Farbe 1'],['d2','Farbe 2 (Bäume)'],['d3','Farbe 3'],['acc','Akzent (Lichter)'],['ink','Schrift']];
+const WORDS=['STERN','KERZE','TANNE','SCHNEE','ENGEL','GLOCKE','ZIMT','MANDEL','KEKS','RENTIER','SCHLITTEN','NUSS','WICHTEL','LEBKUCHEN','FLOCKE','SCHAL','APFEL','ORANGE','KUGEL','GESCHENK','LAMETTA','WINTER','PINGUIN','EISBAER'];
+const DMIX=[7,15,3,22,10,18,12,1,24,9,5,14,19,17,21,4,11,6,23,16,20,2,13,8];
+const PMIX=[7,15,3,22,12,24,10,1,18,9,5,14,19,6,17,21,4,11,23,16,20,2,13,8];
+const BPOS=['b-c','b-tl','b-br','b-c','b-tr','b-bl'];
+const DICON=[0,'candle','bell','snowman','tree','gift','boot','flake','ginger','ornament','mitten','cane','bell','candle','star','snowman','gift','ginger','ornament','mitten','tree','flake','cane','gift','star'];
+const SHOP=[
+ {id:'hat-beanie',cat:'hat',n:'Bommelmütze',p:0},{id:'hat-santa',cat:'hat',n:'Weihnachtsmütze',p:20},{id:'hat-elf',cat:'hat',n:'Wichtelhut',p:30},{id:'hat-antlers',cat:'hat',n:'Rentiergeweih',p:40},{id:'hat-star',cat:'hat',n:'Sternen-Haarreif',p:50},{id:'hat-top',cat:'hat',n:'Zylinder',p:60},{id:'hat-crown',cat:'hat',n:'Krone',p:90},
+ {id:'top-knit',cat:'top',n:'Strickpulli',p:0},{id:'top-xmas',cat:'top',n:'Weihnachtspulli',p:30},{id:'top-stripes',cat:'top',n:'Ringelpulli',p:40},{id:'top-reindeer',cat:'top',n:'Rentierpulli',p:60},{id:'top-gold',cat:'top',n:'Goldjacke',p:100},
+ {id:'scarf-red',cat:'scarf',n:'Roter Schal',p:15},{id:'scarf-stripes',cat:'scarf',n:'Ringelschal',p:25},
+ {id:'glasses-round',cat:'glasses',n:'Runde Brille',p:20},{id:'glasses-star',cat:'glasses',n:'Sternenbrille',p:35},
+ {id:'acc-cane',cat:'acc',n:'Zuckerstange',p:20},{id:'acc-heart',cat:'acc',n:'Lebkuchenherz',p:25},{id:'acc-gift',cat:'acc',n:'Geschenk',p:35},{id:'acc-lantern',cat:'acc',n:'Laterne',p:45},
+ {id:'pet-snowman',cat:'pet',n:'Mini-Schneemann',p:70},{id:'pet-penguin',cat:'pet',n:'Pinguin',p:110}];
+const ITEM=Object.fromEntries(SHOP.map(i=>[i.id,i]));
+const CATS=[['look','Aussehen'],['hat','Mützen'],['top','Pullis'],['scarf','Schals'],['glasses','Brillen'],['acc','In der Hand'],['pet','Begleiter']];
+const OPTIONAL=['hat','scarf','glasses','acc','pet'];
+const VB={hat:'36 8 136 112',top:'28 126 150 120',scarf:'44 96 120 110',glasses:'56 76 92 64',acc:'118 150 76 100',pet:'160 178 60 80'};
+const SKIN=['#f6d5b8','#e9b58f','#c98d5e','#9c6644','#6b4329'];
+const HAIR=['#6b3f22','#2b211c','#d9a441','#b5472b','#9a9a9a'];
+const KNIT=['#2e7d4f','#c8102e','#2f6fb5','#7a4fa3','#d9822b'];
+
+function fix(s){
+ s.design=Object.assign(DEFD(),s.design||{});
+ s.design.colors=Object.assign({...DEF},s.design.colors||{});
+ s.settings=Object.assign({codeMode:'person',lockMode:'midnight',lockHours:24,dateLock:true,year:2026,reviewOpen:true,avatar:true,coins:10,bonus:5,prices:{}},s.settings||{});
+ if(!s.settings.prices||typeof s.settings.prices!=='object')s.settings.prices={};
+ s.people=Array.isArray(s.people)?s.people:[];
+ s.people.forEach(p=>{p.h=Array.isArray(p.h)?p.h.slice(0,24):[];while(p.h.length<24)p.h.push('');p.off=Array.isArray(p.off)?p.off.map(Number):[];p.on=p.on!==false;p.role=p.role==='lehrer'?'lehrer':'schueler';p.group=String(p.group||'');p.name=String(p.name||'');p.a=String(p.a||'')});
+ s.doors=Array.from({length:24},(_,i)=>Object.assign({title:'',text:'',link:'',linkLabel:'',files:[]},(s.doors||[])[i]||{}));
+ s.doors.forEach(d=>{if(!Array.isArray(d.files))d.files=[]});
+ s.epoch=+s.epoch||1;s.coinEpoch=+s.coinEpoch||1;
+ return s;
+}
+const st=fix(JSON.parse(document.getElementById('state').textContent));
+const clone=o=>JSON.parse(JSON.stringify(o));
+
+/* ===== Speicher im Browser ===== */
+const KEY='adv-'+st.salt+'-';
+const memL={},memS={};
+const ls={get(k,d){try{const v=localStorage.getItem(KEY+k);if(v!=null)return JSON.parse(v)}catch(e){}return k in memL?clone(memL[k]):d},set(k,v){memL[k]=clone(v);try{localStorage.setItem(KEY+k,JSON.stringify(v))}catch(e){}}};
+const ss={get(k){try{const v=sessionStorage.getItem(KEY+k);if(v!=null)return v}catch(e){}return k in memS?memS[k]:null},set(k,v){if(v==null)delete memS[k];else memS[k]=String(v);try{v==null?sessionStorage.removeItem(KEY+k):sessionStorage.setItem(KEY+k,v)}catch(e){}}};
+
+/* ===== SHA-256: Codes stehen nur als Prüfsumme in der Seite ===== */
+const K=[],H0=[];
+{const pr=[];for(let n=2;pr.length<64;n++){if(pr.every(p=>n%p))pr.push(n)}pr.forEach((p,i)=>{K[i]=(Math.cbrt(p)%1)*4294967296|0;if(i<8)H0[i]=(Math.sqrt(p)%1)*4294967296|0})}
+const rot=(x,n)=>(x>>>n)|(x<<(32-n));
+function sha256(str){
+ const b=new TextEncoder().encode(str),l=b.length,n=((l+72)>>6)<<4,w=new Uint32Array(n),W=new Uint32Array(64),h=H0.slice();
+ for(let i=0;i<l;i++)w[i>>2]|=b[i]<<(24-(i&3)*8);
+ w[l>>2]|=0x80<<(24-(l&3)*8);w[n-1]=l*8;
+ for(let j=0;j<n;j+=16){
+  for(let t=0;t<64;t++){if(t<16)W[t]=w[j+t];else{const a=W[t-15],c=W[t-2];W[t]=W[t-16]+(rot(a,7)^rot(a,18)^(a>>>3))+W[t-7]+(rot(c,17)^rot(c,19)^(c>>>10))}}
+  let [A,B,C,D,E,F,G,Hh]=h;
+  for(let t=0;t<64;t++){const t1=(Hh+(rot(E,6)^rot(E,11)^rot(E,25))+((E&F)^(~E&G))+K[t]+W[t])|0,t2=((rot(A,2)^rot(A,13)^rot(A,22))+((A&B)^(A&C)^(B&C)))|0;Hh=G;G=F;F=E;E=(D+t1)|0;D=C;C=B;B=A;A=(t1+t2)|0}
+  [A,B,C,D,E,F,G,Hh].forEach((v,i)=>h[i]=(h[i]+v)|0);
+ }
+ return h.map(x=>(x>>>0).toString(16).padStart(8,'0')).join('');
+}
+const norm=c=>String(c||'').trim().toUpperCase().replace(/\s+/g,'');
+const hashCode=c=>sha256(st.salt+'|'+norm(c));
+const H24=c=>hashCode(c).slice(0,24);
+const rnd=n=>{try{return crypto.getRandomValues(new Uint32Array(1))[0]%n}catch(e){return Math.floor(Math.random()*n)}};
+const genCode=()=>WORDS[rnd(WORDS.length)]+'-'+(1000+rnd(9000));
+const newId=()=>'p'+Date.now().toString(36)+rnd(46656).toString(36);
+
+/* ===== Farben & Schrift ===== */
+const hex=(v,k)=>/^#[0-9a-f]{6}$/i.test(v)?v:DEF[k];
+function lum(h){const n=parseInt(h.slice(1),16),c=[n>>16,(n>>8)&255,n&255].map(v=>{v/=255;return v<=.03928?v/12.92:((v+.055)/1.055)**2.4});return .2126*c[0]+.7152*c[1]+.0722*c[2]}
+function mixHex(a,b,t){const p=x=>[1,3,5].map(i=>parseInt(x.slice(i,i+2),16)),A=p(a),B=p(b);return '#'+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,'0')).join('')}
+let fontLink=null,pal=null;
+function applyDesign(g){
+ const r=document.documentElement.style,c={};
+ for(const k in DEF){c[k]=hex(g.colors[k],k);r.setProperty('--'+k,c[k])}
+ c.btn=[c.d1,c.d2,c.bg].sort((a,b)=>lum(a)-lum(b))[0];
+ c.acci=lum(c.acc)>.4?'#1d2522':'#ffffff';
+ r.setProperty('--btn',c.btn);r.setProperty('--acci',c.acci);
+ const f=FONTS[g.font]?g.font:'Outfit';r.setProperty('--df',"'"+f+"'");
+ const href='https://fonts.googleapis.com/css2?family='+(f==='Nunito'?FONTS.Nunito:FONTS[f]+'&family=Nunito:wght@400;600;700;800')+'&display=swap';
+ if(!fontLink){fontLink=document.createElement('link');fontLink.rel='stylesheet';document.head.appendChild(fontLink)}
+ if(fontLink.getAttribute('href')!==href)fontLink.setAttribute('href',href);
+ r.colorScheme=lum(c.bg)<.3?'dark':'light';
+ pal=c;return c;
+}
+
+/* ===== Datum ===== */
+function today(){const p=ss.get('preview'),t=new Date();if(p&&/^\d{4}-\d{2}-\d{2}$/.test(p)){const[y,m,d]=p.split('-').map(Number);return new Date(y,m-1,d,t.getHours(),t.getMinutes())}return t}
+const ymd=d=>d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate();
+const dayDiff=(a,b)=>Math.round((Date.UTC(b.getFullYear(),b.getMonth(),b.getDate())-Date.UTC(a.getFullYear(),a.getMonth(),a.getDate()))/864e5);
+const doorDay=(s,n)=>{const o=+(s.doors[n-1]&&s.doors[n-1].openDay);return o>=1&&o<=31?o:n};
+const doorDate=(s,n)=>new Date(+s.settings.year||2026,11,doorDay(s,n));
+const isToday=(s,n)=>ymd(today())===ymd(doorDate(s,n));
+const reachable=(s,n)=>!s.settings.dateLock||ymd(today())>=ymd(doorDate(s,n));
+const fmtDate=(d,o)=>d.toLocaleDateString('de-DE',o);
+function fmtTime(t){const d=new Date(t),diff=dayDiff(new Date(),d),tm=d.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})+' Uhr';return (diff===0?'heute':diff===1?'morgen':diff===-1?'gestern':fmtDate(d,{weekday:'short',day:'numeric',month:'short'}))+', '+tm}
+function dur(ms){const m=Math.max(1,Math.ceil(ms/60000)),h=Math.floor(m/60);return h?h+' Std. '+(m%60)+' Min.':m+' Min.'}
+function statusLine(s){const t=today(),ds=Array.from({length:24},(_,i)=>doorDate(s,i+1)),first=ds.reduce((a,b)=>b<a?b:a),last=ds.reduce((a,b)=>b>a?b:a);
+ if(!s.settings.dateLock)return 'Alle Türchen sind freigeschaltet.';
+ if(ymd(t)<ymd(first)){const n=dayDiff(t,first);return n===1?'Morgen öffnet sich das erste Türchen.':'Noch '+n+' Tage bis zum ersten Türchen.'}
+ if(ymd(t)>ymd(last))return 'Frohe Weihnachten! Alle Türchen sind offen.';
+ const L=ds.map((d,i)=>ymd(d)===ymd(t)?i+1:0).filter(Boolean);
+ if(!L.length)return 'Heute gibt es kein neues Türchen.';
+ return L.length===1?'Heute ist Türchen '+L[0]+' dran.':'Heute sind die Türchen '+L.slice(0,-1).join(', ')+' und '+L[L.length-1]+' dran.'}
+const dateLine=()=>fmtDate(today(),{weekday:'long',day:'numeric',month:'long',year:'numeric'})+(ss.get('preview')?' (Testdatum)':'');
+
+/* ===== Personen, Codes, Sperren ===== */
+let IX=new Map(),srvLocks={},srvWallets={};
+function index(){IX=new Map();st.people.forEach(p=>{p.h.forEach((x,i)=>{if(x)IX.set(x,{p,n:i+1})});if(p.a)IX.set(p.a,{p,n:0})})}
+function lookup(code){
+ if(!norm(code))return {err:'Bitte geben Sie Ihren Code ein.',empty:true};
+ const r=IX.get(H24(code));if(!r)return {err:'Diesen Code gibt es nicht. Bitte prüfen Sie die Schreibweise.',bad:true};
+ const m=st.settings.codeMode;
+ if(m==='door'&&r.n===0||m==='person'&&r.n>0)return {err:'Dieser Code gilt im Moment nicht.'};
+ if(!r.p.on||r.n&&r.p.off.includes(r.n))return {err:'Dieser Code ist deaktiviert.'};
+ return r;
+}
+const person=()=>{const id=ss.get('who');return st.people.find(p=>p.id===id&&p.on)||null};
+const lkey=(p,n)=>st.settings.codeMode==='door'?p.id+'_'+n:p.id;
+function lockOf(key){
+ const L=ls.get('locks',{}),a=L[key]&&L[key].e===st.epoch?L[key]:null,b=srvLocks[key]&&srvLocks[key].epoch===st.epoch?srvLocks[key]:null;
+ const best=[a,b].filter(Boolean).sort((p,q)=>q.until-p.until)[0];
+ return best&&best.until>Date.now()?best:null;
+}
+function lockUntil(){const s=st.settings;if(s.lockMode==='off')return 0;if(s.lockMode==='midnight'){const d=new Date();d.setHours(24,0,0,0);return d.getTime()}return Date.now()+(s.lockMode==='24h'?24:Math.min(720,Math.max(1,+s.lockHours||24)))*3600e3}
+function lockText(s){
+ if(s.lockMode==='off')return 'Codes werden nach dem Öffnen nicht gesperrt.';
+ const t=s.lockMode==='midnight'?'bis zum nächsten Tag':(s.lockMode==='24h'?24:Math.max(1,+s.lockHours||24))+' Stunden';
+ return s.codeMode==='door'?'Nach dem Öffnen ist ein Türchen-Code '+t+' gesperrt.':'Nach dem Öffnen ist der Code '+t+' gesperrt, so gibt es ein Türchen pro Tag.';
+}
+const tooMany=()=>{const a=ls.get('tries',{n:0,t:0});return a.t>Date.now()?a.t:0};
+const fail=()=>{const a=ls.get('tries',{n:0,t:0});a.n++;if(a.n>=5){a.n=0;a.t=Date.now()+60e3}ls.set('tries',a)};
+const okTry=()=>ls.set('tries',{n:0,t:0});
+const waitMsg=t=>'Zu viele falsche Versuche. Bitte warten Sie '+Math.ceil((t-Date.now())/1000)+' Sekunden.';
+
+/* ===== Wichtel-Geldbörse ===== */
+const WDEF=()=>({coins:0,got:[],ge:st.epoch,owned:['hat-beanie','top-knit'],wear:{hat:'hat-beanie',top:'top-knit',scarf:'',glasses:'',acc:'',pet:''},skin:0,hair:0,knit:0,made:false,name:'',t:0,e:st.coinEpoch});
+function wallet(id){
+ const L=ls.get('wallets',{}),ok=x=>x&&x.e===st.coinEpoch,a=ok(L[id])?L[id]:null,b=ok(srvWallets[id])?srvWallets[id]:null;
+ const src=a&&b?(+b.t>+a.t?b:a):(a||b),w=Object.assign(WDEF(),src?clone(src):{});
+ w.wear=Object.assign(WDEF().wear,w.wear||{});
+ if(!Array.isArray(w.owned))w.owned=WDEF().owned;
+ if(!Array.isArray(w.got)||w.ge!==st.epoch){w.got=[];w.ge=st.epoch}
+ w.coins=Math.max(0,Math.floor(+w.coins||0));
+ return w;
+}
+function saveWallet(id,w){w.t=Date.now();w.e=st.coinEpoch;w.ge=st.epoch;const L=ls.get('wallets',{});L[id]=w;ls.set('wallets',L);if(db)Promise.resolve().then(()=>db.doc('wallets/'+id).set(w)).catch(()=>{})}
+function openedBy(p){if(!p)return [];const O=ls.get('opened',null),loc=O&&O.e===st.epoch&&O.m&&Array.isArray(O.m[p.id])?O.m[p.id]:[];return [...new Set([...loc,...wallet(p.id).got])]}
+const price=(i,s=st)=>{const v=s.settings.prices[i.id];return v===''||v==null||!Number.isFinite(+v)?i.p:Math.max(0,Math.floor(+v))};
+function recordOpen(p,n){
+ const key=lkey(p,n),until=lockUntil(),at=Date.now(),L=ls.get('locks',{});
+ L[key]={until,door:n,at,e:st.epoch};ls.set('locks',L);
+ const O=ls.get('opened',null),o=O&&O.e===st.epoch&&O.m?O:{e:st.epoch,m:{}};o.m[p.id]=o.m[p.id]||[];if(!o.m[p.id].includes(n))o.m[p.id].push(n);ls.set('opened',o);
+ const w=wallet(p.id);let amt=0;
+ if(!w.got.includes(n)){w.got.push(n);if(st.settings.avatar){amt=Math.max(0,+st.settings.coins||0)+(isToday(st,n)?Math.max(0,+st.settings.bonus||0):0);w.coins+=amt}saveWallet(p.id,w)}
+ if(db)Promise.resolve().then(()=>db.doc('locks/'+key).set({until,door:n,at,epoch:st.epoch,pid:p.id})).catch(()=>{});
+ return amt;
+}
+
+/* ===== Töne ===== */
+let actx=null;
+function unlockAudio(){if(!st.design.sound)return;try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();if(actx.state==='suspended')actx.resume()}catch(e){actx=null}}
+function tone(seq){if(!actx||!st.design.sound)return;try{const t0=actx.currentTime+.02;seq.forEach(([f,dt,d])=>{const o=actx.createOscillator(),g=actx.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(.0001,t0+dt);g.gain.exponentialRampToValueAtTime(.16,t0+dt+.02);g.gain.exponentialRampToValueAtTime(.0001,t0+dt+d);o.connect(g);g.connect(actx.destination);o.start(t0+dt);o.stop(t0+dt+d+.05)})}catch(e){}}
+const chime=()=>tone([[784,0,.6],[1047,.13,.7],[1319,.26,1]]);
+const coinSnd=()=>tone([[988,0,.14],[1319,.09,.4]]);
+
+/* ===== Dateien ===== */
+function fileUrl(f){if(!f)return'';const u=String(f.url||'');if(/^https:\/\//i.test(u)||u.startsWith('/_blob/'))return u;const id=String(f.id||'');return /^[\w.~-]+$/.test(id)?'/_blob/'+id:''}
+const kind=t=>/^image\//.test(t)?'Bild':/^video\//.test(t)?'Video':/pdf/.test(t)?'PDF':/^text\/|json/.test(t)?'Text':'Datei';
+const size=b=>b>=1048576?(b/1048576).toFixed(1).replace('.',',')+' MB':Math.max(1,Math.round((+b||0)/1024))+' KB';
+
+/* ===== Bilder ===== */
+function rng(seed){let s=seed;return()=>(s=s*16807%2147483647)/2147483647}
+const f2=v=>Math.round(v*10)/10;
+function starPath(cx,cy,R,r){let d='';for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,q=i%2?r:R;d+=(i?'L':'M')+f2(cx+q*Math.cos(a))+' '+f2(cy+q*Math.sin(a))}return d+'Z'}
+function pine(x,b,h,f){return `<path d="M${f2(x)} ${f2(b-h)}L${f2(x+h*.3)} ${f2(b-h*.5)}H${f2(x+h*.16)}L${f2(x+h*.4)} ${f2(b)}H${f2(x-h*.4)}L${f2(x-h*.16)} ${f2(b-h*.5)}H${f2(x-h*.3)}Z" fill="${f}"/>`}
+function sceneSvg(c,W,H){
+ const R=rng(42),u=Math.min(W,H)/100,dark=lum(c.bg)<.3;
+ const skyT=mixHex(c.bg,'#000000',dark?.45:.12),skyB=mixHex(c.bg,'#ffffff',dark?.2:.5),snow=mixHex(c.bg,'#ffffff',.93),snow2=mixHex(c.bg,'#ffffff',.8),hill=mixHex(c.bg,'#ffffff',dark?.55:.72),pineC=mixHex(c.d2,'#000000',.45),wall=mixHex(c.d1,'#000000',.22),wall2=mixHex(c.d3,c.bg,.3),roof=mixHex(c.bg,'#000000',.55),moon=mixHex(c.acc,'#ffffff',.7);
+ let o=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><defs><linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${skyT}"/><stop offset=".72" stop-color="${skyB}"/></linearGradient><radialGradient id="m"><stop offset="0" stop-color="${moon}" stop-opacity=".55"/><stop offset="1" stop-color="${moon}" stop-opacity="0"/></radialGradient></defs><rect width="${W}" height="${H}" fill="url(#s)"/>`;
+ for(let i=0;i<110;i++)o+=`<circle cx="${f2(R()*W)}" cy="${f2(R()*H*.56)}" r="${f2((.12+R()*.28)*u)}" fill="#fff" opacity="${(.25+R()*.6).toFixed(2)}"/>`;
+ const mx=W*.86,my=H*.14;o+=`<circle cx="${f2(mx)}" cy="${f2(my)}" r="${f2(18*u)}" fill="url(#m)"/><circle cx="${f2(mx)}" cy="${f2(my)}" r="${f2(6.5*u)}" fill="${moon}"/><circle cx="${f2(mx-2*u)}" cy="${f2(my-1.4*u)}" r="${f2(1.3*u)}" fill="${mixHex(moon,'#000000',.07)}"/><circle cx="${f2(mx+2.2*u)}" cy="${f2(my+1.8*u)}" r="${f2(.9*u)}" fill="${mixHex(moon,'#000000',.07)}"/>`;
+ const y1=H*.6;
+ o+=`<path d="M0 ${f2(y1)}C${f2(W*.2)} ${f2(y1-6*u)} ${f2(W*.35)} ${f2(y1+3*u)} ${f2(W*.55)} ${f2(y1-2*u)}S${f2(W*.85)} ${f2(y1-7*u)} ${W} ${f2(y1-u)}V${H}H0Z" fill="${hill}"/>`;
+ for(let x=-u;x<W+u;x+=(2.5+R()*3.5)*u)o+=pine(x,y1+(3+R()*2)*u,(4+R()*5)*u,pineC);
+ const y2=H*.76;
+ o+=`<path d="M0 ${f2(y2)}C${f2(W*.3)} ${f2(y2-4*u)} ${f2(W*.6)} ${f2(y2+4*u)} ${W} ${f2(y2-2*u)}V${H}H0Z" fill="${snow2}"/>`;
+ const house=(x,b,w)=>{const h=w*.72;return `<rect x="${f2(x)}" y="${f2(b-h)}" width="${f2(w)}" height="${f2(h)}" fill="${wall2}"/><path d="M${f2(x-w*.1)} ${f2(b-h)}L${f2(x+w/2)} ${f2(b-h-w*.5)}L${f2(x+w*1.1)} ${f2(b-h)}Z" fill="${roof}"/><path d="M${f2(x-w*.1)} ${f2(b-h)}L${f2(x+w/2)} ${f2(b-h-w*.5)}L${f2(x+w*1.1)} ${f2(b-h)}L${f2(x+w)} ${f2(b-h+w*.06)}L${f2(x+w/2)} ${f2(b-h-w*.4)}L${f2(x)} ${f2(b-h+w*.06)}Z" fill="${snow}"/><rect x="${f2(x+w*.16)}" y="${f2(b-h*.7)}" width="${f2(w*.22)}" height="${f2(w*.22)}" fill="${c.acc}"/><rect x="${f2(x+w*.62)}" y="${f2(b-h*.7)}" width="${f2(w*.22)}" height="${f2(w*.22)}" fill="${c.acc}"/>`};
+ o+=house(W*.62,y2+2*u,11*u)+house(W*.75,y2+u,9*u)+house(W*.035,y2+3*u,9*u);
+ const sx=W*.36,sb=y2+3*u,sw=24*u,sh=11*u;
+ o+=`<rect x="${f2(sx+sw*.42)}" y="${f2(sb-sh-sw*.42)}" width="${f2(sw*.16)}" height="${f2(sw*.3)}" fill="${wall}"/><path d="M${f2(sx+sw*.39)} ${f2(sb-sh-sw*.42)}L${f2(sx+sw*.5)} ${f2(sb-sh-sw*.54)}L${f2(sx+sw*.61)} ${f2(sb-sh-sw*.42)}Z" fill="${roof}"/><circle cx="${f2(sx+sw*.5)}" cy="${f2(sb-sh-sw*.32)}" r="${f2(sw*.035)}" fill="${c.acc}"/>`;
+ o+=`<rect x="${f2(sx)}" y="${f2(sb-sh)}" width="${f2(sw)}" height="${f2(sh)}" fill="${wall}"/><path d="M${f2(sx-sw*.05)} ${f2(sb-sh)}L${f2(sx+sw*.5)} ${f2(sb-sh-sw*.2)}L${f2(sx+sw*1.05)} ${f2(sb-sh)}Z" fill="${roof}"/><path d="M${f2(sx-sw*.05)} ${f2(sb-sh)}L${f2(sx+sw*.5)} ${f2(sb-sh-sw*.2)}L${f2(sx+sw*1.05)} ${f2(sb-sh)}L${f2(sx+sw)} ${f2(sb-sh+sw*.025)}L${f2(sx+sw*.5)} ${f2(sb-sh-sw*.16)}L${f2(sx)} ${f2(sb-sh+sw*.025)}Z" fill="${snow}"/>`;
+ [.08,.25,.67,.84].forEach(fx=>[.22,.58].forEach(fy=>{o+=`<rect x="${f2(sx+sw*fx)}" y="${f2(sb-sh+sh*fy)}" width="${f2(sw*.08)}" height="${f2(sh*.24)}" fill="${c.acc}"/>`}));
+ o+=`<rect x="${f2(sx+sw*.44)}" y="${f2(sb-sh*.5)}" width="${f2(sw*.12)}" height="${f2(sh*.5)}" fill="${roof}"/>`;
+ const tx=W*.17,tb=H*.95,th=Math.min(H*.56,W*.62),tw=th*.56,tier=k=>({top:tb-th+th*k*.2,bot:tb-th*.1-th*(3-k)*.12,ww:tw*(.45+k*.18)});
+ o+=`<rect x="${f2(tx-tw*.05)}" y="${f2(tb-th*.13)}" width="${f2(tw*.1)}" height="${f2(th*.13)}" fill="${mixHex(c.d2,'#3a2410',.7)}"/>`;
+ for(let k=0;k<4;k++){const t=tier(k);o+=`<path d="M${f2(tx)} ${f2(t.top)}L${f2(tx+t.ww/2)} ${f2(t.bot)}Q${f2(tx)} ${f2(t.bot+th*.04)} ${f2(tx-t.ww/2)} ${f2(t.bot)}Z" fill="${k%2?c.d2:mixHex(c.d2,'#000000',.14)}"/>`}
+ for(let i=0;i<20;i++){const t=tier(Math.floor(R()*4)),y=t.top+(t.bot-t.top)*(.35+R()*.6),hw=t.ww/2*(y-t.top)/(t.bot-t.top)*.85,x=tx+(R()*2-1)*hw;o+=`<circle cx="${f2(x)}" cy="${f2(y)}" r="${f2(th*.014)}" fill="${[c.acc,c.d1,'#ffffff'][i%3]}"/>`}
+ o+=`<path d="${starPath(tx,tb-th,th*.055,th*.023)}" fill="${c.acc}"/>`;
+ const y3=H*.88;o+=`<path d="M0 ${f2(y3)}C${f2(W*.25)} ${f2(y3-3*u)} ${f2(W*.55)} ${f2(y3+3*u)} ${W} ${f2(y3-2*u)}V${H}H0Z" fill="${snow}"/>`;
+ const smx=W*.86,smb=H*.965,sr=4.6*u;
+ o+=`<g stroke="${mixHex(snow,'#7a8a99',.25)}" stroke-width="${f2(sr*.05)}"><circle cx="${f2(smx)}" cy="${f2(smb-sr)}" r="${f2(sr)}" fill="#fff"/><circle cx="${f2(smx)}" cy="${f2(smb-sr*2.55)}" r="${f2(sr*.68)}" fill="#fff"/></g><circle cx="${f2(smx-sr*.22)}" cy="${f2(smb-sr*2.7)}" r="${f2(sr*.08)}" fill="#1d2522"/><circle cx="${f2(smx+sr*.22)}" cy="${f2(smb-sr*2.7)}" r="${f2(sr*.08)}" fill="#1d2522"/><path d="M${f2(smx)} ${f2(smb-sr*2.55)}l${f2(sr*.55)} ${f2(sr*.1)}l${f2(-sr*.55)} ${f2(sr*.1)}Z" fill="#f08a24"/><path d="M${f2(smx-sr*.6)} ${f2(smb-sr*1.95)}q${f2(sr*.6)} ${f2(sr*.3)} ${f2(sr*1.2)} 0" stroke="${c.d1}" stroke-width="${f2(sr*.22)}" fill="none" stroke-linecap="round"/><path d="M${f2(smx-sr*.9)} ${f2(smb-sr*1.4)}l${f2(-sr*.8)} ${f2(-sr*.6)}M${f2(smx+sr*.9)} ${f2(smb-sr*1.4)}l${f2(sr*.8)} ${f2(-sr*.6)}" stroke="#6b3f22" stroke-width="${f2(sr*.1)}" stroke-linecap="round"/>`;
+ for(let i=0;i<70;i++)o+=`<circle cx="${f2(R()*W)}" cy="${f2(R()*H)}" r="${f2((.2+R()*.35)*u)}" fill="#fff" opacity=".55"/>`;
+ return o+'</svg>';
+}
+const ICONS={
+ star:'<path d="M24 4l5.9 12.6 13.6 1.6-10 9.3 2.6 13.5L24 34.4 11.9 41l2.6-13.5-10-9.3 13.6-1.6z" fill="#f4c542" stroke="#c99a1c" stroke-width="1.5"/>',
+ bell:'<path d="M24 8c-7 0-11 5-11 12v8l-4 6h30l-4-6v-8c0-7-4-12-11-12z" fill="#f4c542" stroke="#c99a1c" stroke-width="1.5"/><circle cx="24" cy="38" r="4" fill="#c99a1c"/><path d="M24 8c-3-5-9-5-9-1M24 8c3-5 9-5 9-1" stroke="#d21f3c" stroke-width="3" fill="none" stroke-linecap="round"/>',
+ candle:'<rect x="18" y="18" width="12" height="24" rx="2" fill="#d21f3c"/><rect x="20" y="20" width="3" height="18" rx="1.5" fill="#fff" opacity=".35"/><path d="M24 5c3.5 4.5 4.5 7.5 0 11-4.5-3.5-3.5-6.5 0-11z" fill="#f4c542"/><rect x="23" y="15" width="2" height="4" fill="#333"/><path d="M12 42h24" stroke="#1e8a4c" stroke-width="5" stroke-linecap="round"/>',
+ gift:'<rect x="8" y="20" width="32" height="22" rx="2" fill="#d21f3c"/><rect x="6" y="14" width="36" height="8" rx="2" fill="#e8394f"/><rect x="21" y="14" width="6" height="28" fill="#f4c542"/><path d="M24 14c-4-8-12-6-10-2 2 3 10 2 10 2zm0 0c4-8 12-6 10-2-2 3-10 2-10 2z" fill="#f4c542"/>',
+ tree:'<path d="M24 4l10 13h-5l8 11h-6l9 12H8l9-12h-6l8-11h-5z" fill="#1e8a4c"/><rect x="21" y="40" width="6" height="5" fill="#8a5a35"/><circle cx="20" cy="24" r="2" fill="#d21f3c"/><circle cx="28" cy="31" r="2" fill="#f4c542"/><circle cx="18" cy="35" r="2" fill="#f4c542"/><circle cx="29" cy="20" r="2" fill="#d21f3c"/><circle cx="30" cy="37" r="2" fill="#d21f3c"/>',
+ boot:'<path d="M15 12h16v16c0 2 2 3 6 4 5 1 7 3 7 7v3H12c-2 0-3-1-3-3V18c0-4 2-6 6-6z" fill="#d21f3c"/><rect x="12" y="6" width="22" height="9" rx="3" fill="#fff" stroke="#e2d9ca"/>',
+ snowman:'<circle cx="24" cy="33" r="11" fill="#fff" stroke="#cfd8de" stroke-width="1.5"/><circle cx="24" cy="16" r="8" fill="#fff" stroke="#cfd8de" stroke-width="1.5"/><circle cx="21" cy="15" r="1.3" fill="#1d2522"/><circle cx="27" cy="15" r="1.3" fill="#1d2522"/><path d="M24 17l5 1-5 1z" fill="#f08a24"/><path d="M17 23q7 4 14 0" stroke="#d21f3c" stroke-width="3" fill="none" stroke-linecap="round"/><rect x="18" y="4" width="12" height="6" rx="1" fill="#1d2522"/><rect x="15" y="9" width="18" height="2.5" rx="1" fill="#1d2522"/>',
+ ornament:'<circle cx="24" cy="27" r="15" fill="#d21f3c"/><rect x="20" y="8" width="8" height="6" rx="1" fill="#f4c542"/><path d="M11 25q13 6 26 0" stroke="#f4c542" stroke-width="3" fill="none"/><circle cx="18" cy="21" r="3" fill="#fff" opacity=".6"/>',
+ cane:'<path d="M29 44V15a7 7 0 0 0-14 0" stroke="#d9d0c2" stroke-width="9" fill="none" stroke-linecap="round"/><path d="M29 44V15a7 7 0 0 0-14 0" stroke="#fff" stroke-width="6.5" fill="none" stroke-linecap="round"/><path d="M29 44V15a7 7 0 0 0-14 0" stroke="#d21f3c" stroke-width="6.5" fill="none" stroke-dasharray="5 5"/>',
+ mitten:'<path d="M16 38V18c0-7 4-11 10-11s9 4 9 10v6l4-3c2-1 5 1 3 4l-7 9v5z" fill="#1e8a4c"/><path d="M19 18h14M19 25h15" stroke="#fff" stroke-width="2" stroke-dasharray="2 3"/><rect x="14" y="37" width="22" height="7" rx="2" fill="#fff" stroke="#e2d9ca"/>',
+ ginger:'<path d="M24 5a6 6 0 0 1 6 6 6 6 0 0 1-2 4.5h7a3.5 3.5 0 0 1 0 7h-5v6l5 9a3.5 3.5 0 0 1-6 3.5l-5-8-5 8a3.5 3.5 0 0 1-6-3.5l5-9v-6h-5a3.5 3.5 0 0 1 0-7h7A6 6 0 0 1 18 11a6 6 0 0 1 6-6z" fill="#b5712f"/><circle cx="22" cy="10" r="1.2" fill="#fff"/><circle cx="26" cy="10" r="1.2" fill="#fff"/><circle cx="24" cy="21" r="1.5" fill="#fff"/><circle cx="24" cy="26" r="1.5" fill="#fff"/>',
+ flake:'<g stroke="#5aa9e6" stroke-width="3" stroke-linecap="round" fill="none"><path d="M24 6v36M8.4 15l31.2 18M8.4 33l31.2-18"/><path d="M20 9l4 4 4-4M20 39l4-4 4 4M9 20.5l5.5-1.5-1.5-5.5M39 27.5l-5.5 1.5 1.5 5.5M9 27.5l5.5 1.5-1.5 5.5M39 20.5l-5.5-1.5 1.5-5.5"/></g>'};
+const icon=n=>`<svg viewBox="0 0 48 48" aria-hidden="true">${ICONS[DICON[n]]||ICONS.star}</svg>`;
+function skySvg(){const R=rng(11);let o='';for(let i=0;i<110;i++){const x=R()*1440,y=R()*700,r=.6+R()*1.5,op=.2+R()*.55;if(y<230&&x<1000)continue;o+=`<circle class="dot" cx="${x|0}" cy="${y|0}" r="${r.toFixed(1)}" opacity="${op.toFixed(2)}"/>`}
+ for(let i=0;i<10;i++){const x=60+R()*1320,y=250+R()*420,s=.7+R()*1.1;o+=`<path class="spark" d="M0-9L2-2 9 0 2 2 0 9-2 2-9 0-2-2Z" transform="translate(${x|0} ${y|0}) scale(${s.toFixed(2)})"/>`}return o}
+function houseG(x,y,w){return `<g transform="translate(${x} ${y})"><rect class="wall3" x="0" y="-48" width="${w}" height="48"/><path class="roof" d="M-8 -48L${w/2} -82L${w+8} -48Z"/><path class="cap" d="M-8 -48L${w/2} -82L${w+8} -48L${w} -44L${w/2} -74L0 -44Z"/><rect class="win" x="${w*.18|0}" y="-36" width="16" height="16"/><rect class="win" x="${w*.62|0}" y="-36" width="16" height="16"/></g>`}
+function groundSvg(town,id){const R=rng(5);let far='',near='';
+ for(let x=20;x<2400;x+=70+R()*60){if(town&&x>1560&&x<1890)continue;far+=`<use href="#${id}" transform="translate(${x|0} ${(150+R()*16)|0}) scale(${(.42+R()*.3).toFixed(2)})"/>`}
+ [[90,252,1.25],[215,256,.95],[335,250,1.1],[980,250,.8],[1430,252,.75],[2080,252,1.05],[2200,256,1.3],[2330,250,.9]].forEach(([x,y,s])=>{near+=`<use href="#${id}" transform="translate(${x} ${y}) scale(${s})"/>`});
+ let win='';[20,62,168,210].forEach(x=>{win+=`<rect class="win" x="${x}" y="-58" width="20" height="16"/><rect class="win" x="${x}" y="-32" width="20" height="16"/>`});
+ return `<defs><g id="${id}"><path class="tree" d="M0 -100L30 -56H15L40 -20H22L48 16H-48L-22 -20H-40L-15 -56H-30Z"/><path class="cap" d="M0 -100L14 -79L6 -75L0 -82L-6 -75L-14 -79Z"/><rect class="trunk" x="-6" y="16" width="12" height="12"/></g></defs>
+ <path class="g1" d="M0 150C260 110 520 140 800 118S1400 96 1700 124S2150 104 2400 130V260H0Z"/>${far}
+ <path class="s2" d="M0 205C300 180 600 214 900 200S1500 196 1800 208S2200 190 2400 204V260H0Z"/>
+ ${town?houseG(600,222,78)+houseG(2000,220,70)+`<g transform="translate(1600 214)"><rect class="wall" x="103" y="-150" width="44" height="64"/><path class="roof" d="M95 -150L125 -176L155 -150Z"/><circle class="win" cx="125" cy="-128" r="8"/><rect class="wall" x="0" y="-70" width="250" height="70"/><path class="roof" d="M-12 -70L125 -122L262 -70Z"/><path class="cap" d="M-12 -70L125 -122L262 -70L250 -64L125 -112L0 -64Z"/>${win}<rect class="dr" x="108" y="-36" width="34" height="36"/></g>`:''}
+ ${near}<path class="s1" d="M0 236C400 214 800 244 1200 230S1900 218 2400 238V260H0Z"/>`}
+
+/* ===== Wichtel zeichnen ===== */
+let avaN=0;
+function avatarSvg(w,tryId,vb){
+ const wear=Object.assign({},w.wear);if(tryId&&ITEM[tryId])wear[ITEM[tryId].cat]=tryId;
+ const sk=SKIN[w.skin]||SKIN[0],hr=HAIR[w.hair]||HAIR[0],id='av'+(++avaN);
+ const tops={'top-knit':'#2e7d4f','top-xmas':'#c8102e','top-stripes':'#2f6fb5','top-reindeer':'#1e5e43','top-gold':'#e3b23c'},tc=wear.top==='top-knit'?(KNIT[w.knit]||KNIT[0]):(tops[wear.top]||KNIT[0]),tk=mixHex(tc,'#000000',.2);
+ const torso='M64 152Q101 134 138 152L148 214Q101 226 54 214Z';
+ let pat='';
+ if(wear.top==='top-knit')pat=`<path d="M80 150v70M101 140v84M122 150v70" stroke="${tk}" stroke-width="3" opacity=".7"/><rect x="50" y="206" width="104" height="12" fill="${tk}"/>`;
+ if(wear.top==='top-xmas')pat='<rect x="50" y="170" width="104" height="16" fill="#fff"/><path d="M50 178l8-6 8 6 8-6 8 6 8-6 8 6 8-6 8 6 8-6 8 6 8-6 8 6 8-6" stroke="#1e8a4c" stroke-width="3" fill="none"/><g fill="#fff"><circle cx="78" cy="158" r="2.5"/><circle cx="101" cy="154" r="2.5"/><circle cx="124" cy="158" r="2.5"/><circle cx="84" cy="200" r="2.5"/><circle cx="118" cy="200" r="2.5"/></g>';
+ if(wear.top==='top-stripes')pat='<g fill="#fff" opacity=".92"><rect x="40" y="150" width="120" height="7"/><rect x="40" y="164" width="120" height="7"/><rect x="40" y="178" width="120" height="7"/><rect x="40" y="192" width="120" height="7"/><rect x="40" y="206" width="120" height="7"/></g>';
+ if(wear.top==='top-reindeer')pat='<circle cx="101" cy="184" r="13" fill="#9a6440"/><circle cx="101" cy="191" r="4.5" fill="#d21f3c"/><circle cx="96" cy="180" r="2" fill="#fff"/><circle cx="106" cy="180" r="2" fill="#fff"/><path d="M92 172l-6-10M88 165l-5 1M110 172l6-10M114 165l5 1" stroke="#d9b57a" stroke-width="3" stroke-linecap="round"/><g fill="#fff"><circle cx="70" cy="164" r="2"/><circle cx="132" cy="164" r="2"/><circle cx="72" cy="204" r="2"/><circle cx="130" cy="204" r="2"/></g>';
+ if(wear.top==='top-gold')pat='<path d="M74 146L92 222" stroke="#fff4c4" stroke-width="9" opacity=".45"/><path d="M101 140v84" stroke="#a37b14" stroke-width="2.5"/><g fill="#8a6a14"><circle cx="108" cy="168" r="3.2"/><circle cx="108" cy="186" r="3.2"/><circle cx="108" cy="204" r="3.2"/></g>';
+ const arm=(d)=>`<path d="${d}" stroke="${tc}" stroke-width="18" fill="none" stroke-linecap="round"/>`;
+ const pets={'pet-snowman':'<g stroke="#d7e0e6" stroke-width="2"><circle cx="190" cy="230" r="17" fill="#fff"/><circle cx="190" cy="204" r="12" fill="#fff"/></g><circle cx="186" cy="201" r="1.8" fill="#1d2522"/><circle cx="194" cy="201" r="1.8" fill="#1d2522"/><path d="M190 204l9 2-9 2z" fill="#f08a24"/><path d="M179 213q11 6 22 0" stroke="#c8102e" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="190" cy="226" r="1.8" fill="#1d2522"/><circle cx="190" cy="234" r="1.8" fill="#1d2522"/>',
+  'pet-penguin':'<ellipse cx="183" cy="246" rx="6" ry="3" fill="#f08a24"/><ellipse cx="197" cy="246" rx="6" ry="3" fill="#f08a24"/><ellipse cx="190" cy="222" rx="18" ry="25" fill="#26313c"/><ellipse cx="190" cy="229" rx="12" ry="16" fill="#fff"/><ellipse cx="190" cy="209" rx="10" ry="8" fill="#fff"/><circle cx="186" cy="208" r="2" fill="#1d2522"/><circle cx="194" cy="208" r="2" fill="#1d2522"/><path d="M186 212h8l-4 5z" fill="#f08a24"/><path d="M175 219q15 6 30 0" stroke="#c8102e" stroke-width="4" fill="none" stroke-linecap="round"/>'};
+ const accs={'acc-cane':'<path d="M162 238V176a10 10 0 0 0-20 0" stroke="#e2d9cc" stroke-width="10" fill="none" stroke-linecap="round"/><path d="M162 238V176a10 10 0 0 0-20 0" stroke="#fff" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M162 238V176a10 10 0 0 0-20 0" stroke="#d21f3c" stroke-width="7" fill="none" stroke-dasharray="6 6"/>',
+  'acc-heart':'<path d="M158 196v10" stroke="#c8102e" stroke-width="2.5"/><path d="M158 240c-14-9-22-16-22-25 0-6 5-10 10-10 5 0 9 3 12 7 3-4 7-7 12-7 5 0 10 4 10 10 0 9-8 16-22 25z" fill="#b5712f"/><path d="M158 233c-10-7-15-12-15-18 0-3 3-6 6-6s6 2 9 5c3-3 6-5 9-5s6 3 6 6c0 6-5 11-15 18z" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="3 3"/>',
+  'acc-gift':'<rect x="145" y="196" width="30" height="26" rx="3" fill="#c8102e"/><rect x="157" y="196" width="6" height="26" fill="#f4c542"/><rect x="145" y="205" width="30" height="5" fill="#f4c542"/><path d="M160 196c-6-9-14-6-11-1 2 3 11 1 11 1zm0 0c6-9 14-6 11-1-2 3-11 1-11 1z" fill="#f4c542"/>',
+  'acc-lantern':'<circle cx="158" cy="222" r="26" fill="#ffd76a" opacity=".28"/><path d="M158 196v8" stroke="#3a3a3a" stroke-width="2"/><rect x="144" y="202" width="28" height="6" rx="3" fill="#3a3a3a"/><rect x="146" y="207" width="24" height="28" rx="4" fill="#f4c542"/><rect x="150" y="211" width="16" height="20" rx="3" fill="#fff6c2"/><path d="M158 214c3 4 3 7 0 10-3-3-3-6 0-10z" fill="#ff9a2e"/><rect x="144" y="234" width="28" height="5" rx="2.5" fill="#3a3a3a"/>'};
+ const scarfC=wear.scarf==='scarf-stripes'?'#1e8a4c':'#c8102e';
+ const scarf=wear.scarf?`<path d="M68 142Q101 158 134 142L136 155Q101 170 66 155Z" fill="${scarfC}"/><path d="M114 154l16 4-5 34-14-2z" fill="${scarfC}"/>${wear.scarf==='scarf-stripes'?'<path d="M80 149l2 12M94 152l1 13M108 152l-1 13M122 149l-2 12M113 166l15 3M112 178l14 3" stroke="#fff" stroke-width="4"/>':''}<path d="M112 190l1 6M117 191l1 6M122 192l1 6" stroke="${scarfC}" stroke-width="2.5"/>`:'';
+ const glasses=wear.glasses==='glasses-round'?'<g fill="rgba(255,255,255,.2)" stroke="#2a2a2a" stroke-width="3"><circle cx="87" cy="108" r="11"/><circle cx="115" cy="108" r="11"/></g><path d="M98 107h6" stroke="#2a2a2a" stroke-width="3"/>':wear.glasses==='glasses-star'?`<g fill="rgba(255,226,110,.35)" stroke="#e0a800" stroke-width="3" stroke-linejoin="round"><path d="${starPath(86,108,15,7.5)}"/><path d="${starPath(116,108,15,7.5)}"/></g><path d="M99 108h4" stroke="#e0a800" stroke-width="3"/>`:'';
+ const hats={'hat-beanie':'<path d="M62 98Q60 58 101 56Q142 58 140 98Z" fill="#c8102e"/><path d="M82 62v28M101 57v33M120 62v28" stroke="#a50d26" stroke-width="3" opacity=".6"/><rect x="58" y="88" width="86" height="16" rx="8" fill="#a50d26"/><circle cx="101" cy="52" r="11" fill="#fff"/>',
+  'hat-santa':'<path d="M64 94Q70 46 118 40Q150 38 160 74Q146 58 130 62Q140 76 138 94Z" fill="#d21f3c"/><rect x="58" y="86" width="86" height="18" rx="9" fill="#fff"/><circle cx="160" cy="76" r="10" fill="#fff"/>',
+  'hat-elf':'<path d="M66 92L110 12L136 92Z" fill="#1e8a4c"/><path d="M110 12L136 92H124Z" fill="#167a40"/><rect x="60" y="86" width="82" height="15" rx="7" fill="#c8102e"/><circle cx="110" cy="12" r="7" fill="#f4c542"/>',
+  'hat-antlers':'<path d="M72 84Q66 60 52 46M62 64Q52 62 46 66M58 52 52 42M130 84Q136 60 150 46M140 64Q150 62 156 66M144 52 150 42" stroke="#8a5a35" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M64 90Q101 58 138 90" stroke="#5b3a22" stroke-width="5" fill="none"/><circle cx="101" cy="117" r="6" fill="#d21f3c"/>',
+  'hat-star':`<path d="M64 92Q101 60 138 92" stroke="#e0a800" stroke-width="5" fill="none"/><path d="${starPath(101,58,18,8)}" fill="#f4c542" stroke="#c99a1c" stroke-width="2"/>`,
+  'hat-top':'<rect x="74" y="32" width="54" height="52" rx="3" fill="#1f1f24"/><rect x="74" y="70" width="54" height="9" fill="#c8102e"/><rect x="58" y="80" width="86" height="11" rx="5.5" fill="#1f1f24"/><circle cx="122" cy="74" r="4" fill="#1e8a4c"/>',
+  'hat-crown':'<path d="M68 92V58l16 16 17-26 17 26 16-16v34Z" fill="#f4c542" stroke="#c99a1c" stroke-width="2" stroke-linejoin="round"/><circle cx="101" cy="80" r="5" fill="#c8102e"/><circle cx="82" cy="83" r="3.5" fill="#3d74d6"/><circle cx="120" cy="83" r="3.5" fill="#1e8a4c"/>'};
+ return `<svg viewBox="${vb||'0 0 220 260'}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Wichtel"><defs><clipPath id="${id}"><path d="${torso}"/></clipPath></defs>
+ <ellipse cx="108" cy="250" rx="66" ry="7" fill="#000" opacity=".13"/>${pets[wear.pet]||''}
+ <rect x="80" y="200" width="17" height="42" rx="7" fill="#2f3a4a"/><rect x="105" y="200" width="17" height="42" rx="7" fill="#2f3a4a"/>
+ <path d="M74 236h26v8a4 4 0 0 1-4 4H78a4 4 0 0 1-4-4z" fill="#6b3f22"/><path d="M102 236h26v8a4 4 0 0 1-4 4h-18a4 4 0 0 1-4-4z" fill="#6b3f22"/>
+ ${arm('M70 160Q52 178 50 200')}<path d="${torso}" fill="${tc}"/><g clip-path="url(#${id})">${pat}</g>
+ ${accs[wear.acc]||''}${arm('M134 160Q152 172 158 190')}
+ <circle cx="50" cy="202" r="9" fill="${sk}"/><circle cx="158" cy="192" r="9" fill="${sk}"/>${wear.acc==='acc-cane'?'<path d="M162 186v14" stroke="#fff" stroke-width="7" stroke-linecap="round"/><path d="M152 192h14" stroke="'+sk+'" stroke-width="7" stroke-linecap="round"/>':''}
+ <rect x="92" y="134" width="18" height="16" fill="${sk}"/>
+ <circle cx="64" cy="108" r="8" fill="${sk}"/><circle cx="138" cy="108" r="8" fill="${sk}"/><circle cx="101" cy="104" r="38" fill="${sk}"/>
+ <path d="M63 100Q64 64 101 63Q138 64 139 100Q128 84 112 82Q104 92 84 90Q72 92 63 100Z" fill="${hr}"/>
+ <circle cx="87" cy="108" r="4.5" fill="#1d2522"/><circle cx="115" cy="108" r="4.5" fill="#1d2522"/><circle cx="88.5" cy="106.5" r="1.5" fill="#fff"/><circle cx="116.5" cy="106.5" r="1.5" fill="#fff"/>
+ <circle cx="78" cy="121" r="7" fill="#f08f8f" opacity=".45"/><circle cx="124" cy="121" r="7" fill="#f08f8f" opacity=".45"/><path d="M90 123Q101 133 112 123" stroke="#1d2522" stroke-width="3" fill="none" stroke-linecap="round"/>
+ ${scarf}${glasses}${hats[wear.hat]||''}</svg>`;
+}
+const wornNames=w=>Object.values(w.wear).filter(Boolean).map(id=>ITEM[id]?ITEM[id].n:'').filter(Boolean).join(', ');
+
+/* ===== Symbole ===== */
+const XI='<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+const XBTN=`<button type="button" class="x" data-act="close" aria-label="Schließen">${XI}</button>`;
+const FSI='<svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>';
+const ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h9M19 6h1M4 12h3M13 12h7M4 18h11M21 18h-1"/><circle cx="16" cy="6" r="2.5"/><circle cx="10" cy="12" r="2.5"/><circle cx="18" cy="18" r="2.5"/></svg>';
+const COIN='<svg class="coin" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10.5" fill="#f4c542" stroke="#c99a1c" stroke-width="2"/><circle cx="12" cy="12" r="7" fill="none" stroke="#e0ad2a" stroke-width="1.2"/><path d="M12 6.8l1.5 3.2 3.5.4-2.6 2.4.7 3.5L12 14.6l-3.1 1.7.7-3.5L7 10.4l3.5-.4z" fill="#c99a1c"/></svg>';
+const BOW='<svg class="bow" viewBox="0 0 160 84" aria-hidden="true"><path class="b2" d="M80 42L54 82l11 2 15-28 15 28 11-2z"/><path class="b1" d="M80 42C60 10 18 4 16 28c-2 20 36 24 64 14z"/><path class="b1" d="M80 42c20-32 62-38 64-14 2 20-36 24-64 14z"/><path class="b2" d="M80 42C64 24 34 18 30 30c10-2 30 2 50 12zm0 0c16-18 46-24 50-12-10-2-30 2-50 12z" opacity=".55"/><circle class="b2" cx="80" cy="42" r="11"/></svg>';
+
+/* ===== Gerüst ===== */
+$('#root').innerHTML=`<section class="start glow" id="start" hidden>
+<svg class="sky" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${skySvg()}</svg>
+<div class="stop band"><span class="brand">Adventskalender</span><button type="button" class="ghost" data-act="admin">${ICON}Admin</button></div>
+<div class="shero band"><div class="scard"><h1 id="stitle"></h1><p class="sub" id="ssub"></p><p class="sdate"><b id="sdate"></b><br><span id="smsg"></span></p>
+<div id="flog"><label class="f" for="lcode">Ihr Code</label><div class="lrow"><input class="inp codein big" id="lcode" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="z. B. STERN-1234" enterkeyhint="go"><button type="button" class="btn big" data-act="login">Öffnen</button></div><p class="msg" id="lmsg" aria-live="polite"></p></div>
+<p class="hint" id="shint"></p></div><div class="swave" id="swave"></div></div>
+<svg class="ground" viewBox="0 0 2400 260" preserveAspectRatio="xMidYMax slice" aria-hidden="true">${groundSvg(true,'trA')}</svg></section>
+<div id="app" hidden><main class="appm glow" id="main">
+<svg class="sky" id="sky" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${skySvg()}</svg><div class="bgimg" id="bgimg" hidden></div>
+<header class="band apph"><div class="wrap top"><div><h1 id="t"></h1><p class="sub" id="sub"></p></div><div class="status"><div class="tday"><b id="tdate"></b><span id="tmsg"></span></div><div class="who" id="who"></div></div></div></header>
+<section class="board band" id="board" aria-label="Adventskalender"><div class="frame">${BOW}<div class="grid" id="grid"></div></div>
+<svg class="ground" id="ground" viewBox="0 0 2400 260" preserveAspectRatio="xMidYMax slice" aria-hidden="true">${groundSvg(false,'trB')}</svg><div class="snow" id="snow" aria-hidden="true"></div></section></main>
+<section class="band wich" id="wich" aria-label="Wichtel"><div class="wrap wg"><div class="ava" id="ava"></div><div class="wtxt"><h2 id="wh"></h2><span class="purse">${COIN}<b id="wc">0</b> Münzen</span><p id="wp"></p><p class="hint" id="ww"></p><div class="acts"><button type="button" class="btn" data-act="shop">Outfit-Shop</button><button type="button" class="btn sec" data-act="look">Aussehen ändern</button></div></div></div></section>
+<footer class="band foot"><div class="wrap how"><p id="how"></p><p class="note" id="note">Die Inhalte und Personen sind Beispiele und lassen sich im Admin-Bereich ändern.</p></div></footer></div>
+<div class="ov" id="ov" hidden><div class="card" id="card" role="dialog" aria-modal="true"></div></div>
+<aside class="adm" id="adm" hidden aria-label="Admin-Bereich"><div class="ahd"><h2>Admin-Bereich</h2><button type="button" class="x" id="aclose" aria-label="Admin-Bereich schließen">${XI}</button></div>
+<div class="tabs" role="tablist"><button type="button" role="tab" data-tab="doors">Türchen</button><button type="button" role="tab" data-tab="design">Design</button><button type="button" role="tab" data-tab="people">Personen &amp; Codes</button><button type="button" role="tab" data-tab="wichtel">Wichtel</button><button type="button" role="tab" data-tab="settings">Einstellungen</button></div>
+<div class="abody" id="abody"></div>
+<div class="abar"><span class="st" id="ast" aria-live="polite"></span><button type="button" class="btn sec" id="adiscard">Verwerfen</button><button type="button" class="btn" id="asave">Speichern</button></div></aside>
+<div class="toast" id="toast" role="status" hidden></div>`;
+
+/* ===== Zustand ===== */
+let db=null,assets=null,art=null,downloads=null,capsReady=false,canEdit=false;
+let adminOpen=false,draft=null,plain={},tab='doors',sel=1,dirty=false,pendingReset=false,pendingCoins=false,newA1='',newA2='',busy='',saving=false,closeArmed=false,lastFocus=null;
+let pf='all',pq='',openP=new Set(),rmArm='',changedP=new Set(),removedP=new Set(),shopCat='hat',shopTry=null,sceneKey='',sceneUrl='';
+const cur=()=>adminOpen&&draft?draft:st;
+function bcol(n){const c=pal||applyDesign(cur().design),bc=n===24?c.acc:[c.d1,c.d3,c.d2][n%3];return {bc,nc:n===24?c.acci:(lum(bc)>.4?c.btn:'#ffffff')}}
+const slot=(s,n)=>s.design.order==='seq'?['p'+n,'p'+n]:['p'+(DMIX.indexOf(n)+1),'p'+(PMIX.indexOf(n)+1)];
+
+/* ===== Zeichnen ===== */
+function render(){
+ const s=cur(),g=s.design;applyDesign(g);
+ const p=person(),app=adminOpen||!!p;
+ $('#start').hidden=app;$('#app').hidden=!app;
+ if(!app){
+  $('#stitle').textContent=g.title||'Adventskalender';const ssub=$('#ssub');ssub.textContent=g.subtitle||'';ssub.hidden=!g.subtitle;
+  $('#sdate').textContent=dateLine();$('#smsg').textContent=statusLine(s);$('#shint').textContent=g.loginHint||'';
+  if(!$('#swave').firstChild)$('#swave').innerHTML=avatarSvg(Object.assign(WDEF(),{wear:{hat:'hat-santa',top:'top-xmas',scarf:'',glasses:'',acc:'acc-cane',pet:''}}));
+  $('#snow').innerHTML='';return;
+ }
+ $('#t').textContent=g.title||'Adventskalender';const sub=$('#sub');sub.textContent=g.subtitle||'';sub.hidden=!g.subtitle;
+ $('#tdate').textContent=dateLine();$('#tmsg').textContent=statusLine(s);
+ const u=g.bgImage?fileUrl(g.bgImage):'',bi=$('#bgimg');bi.hidden=!u;if(u)bi.style.backgroundImage='url("'+u.replace(/["\\\n]/g,'')+'")';$('#sky').style.display=u?'none':'';
+ const O=adminOpen?[]:openedBy(p);
+ $('#grid').innerHTML=Array.from({length:24},(_,i)=>{const n=i+1,c=bcol(n),[ad,am]=slot(s,n),open=O.includes(n),td=isToday(s,n)&&!open;
+  return `<div class="cell${open?' open':''}${td?' today':''}" style="--ad:${ad};--am:${am};--bc:${c.bc};--nc:${c.nc}"><button type="button" class="in" data-n="${n}"${open?'':' tabindex="-1" aria-hidden="true"'} aria-label="Türchen ${n} ansehen">${icon(n)}<small>${n===24?'Frohe Weihnachten':'Türchen '+n}</small></button><button type="button" class="door" data-n="${n}"${open?' tabindex="-1" aria-hidden="true"':''} aria-label="Türchen ${n}${td?', heute':''}"><span class="face back"></span><span class="face front"><span class="badge ${n===24?'b-c':BPOS[n%6]}">${n}</span>${td?'<span class="tag">Heute</span>':''}</span></button></div>`}).join('');
+ renderWho();renderWichtel();layoutBg(true);
+ $('#how').textContent=(s.settings.codeMode==='door'?'So geht’s: Mit dem Code für ein Türchen anmelden oder ein Türchen antippen und seinen Code eingeben. ':'So geht’s: Mit dem eigenen Code anmelden und ein Türchen antippen. ')+lockText(s.settings)+(s.settings.reviewOpen?' Geöffnete Türchen lassen sich jederzeit wieder ansehen.':'');
+ $('#note').hidden=!st.sample;
+}
+function layoutBg(force){
+ const g=$('#grid');if(!g||$('#app').hidden)return;const W=g.clientWidth,H=g.clientHeight;if(!W||!H)return;
+ g.style.setProperty('--bw',W+'px');g.style.setProperty('--bh',H+'px');
+ g.querySelectorAll('.cell').forEach(c=>{c.style.setProperty('--bx',-c.offsetLeft+'px');c.style.setProperty('--by',-c.offsetTop+'px')});
+ const asp=Math.round(H/W*50)/50,key=JSON.stringify(pal)+asp;
+ if(key!==sceneKey){sceneKey=key;sceneUrl='url("data:image/svg+xml,'+encodeURIComponent(sceneSvg(pal,1600,Math.round(1600*asp)))+'")';g.style.setProperty('--scene',sceneUrl)}
+}
+new ResizeObserver(()=>layoutBg()).observe($('#grid'));
+new ResizeObserver(()=>{$('#snow').style.setProperty('--h',($('#board').clientHeight+24)+'px')}).observe($('#board'));
+function buildSnow(){const el=$('#snow');if(!cur().design.snow||$('#app').hidden){el.innerHTML='';return}const R=rng(7);el.innerHTML=Array.from({length:46},()=>{const z=2+R()*4;return `<i style="left:${(R()*100).toFixed(2)}%;width:${z.toFixed(1)}px;height:${z.toFixed(1)}px;--dx:${((R()-.5)*90)|0}px;opacity:${(.35+R()*.5).toFixed(2)};animation-duration:${(10+R()*12).toFixed(1)}s;animation-delay:-${(R()*22).toFixed(1)}s"></i>`}).join('')}
+function renderWho(){
+ const el=$('#who'),p=person();
+ if(adminOpen&&!p){el.innerHTML='<span class="chip" style="padding-left:14px">Admin-Vorschau</span>';return}
+ if(!p){el.innerHTML='';return}
+ const w=wallet(p.id);
+ el.innerHTML=`<span class="hi">Hallo ${esc(p.name)}!<small>${p.role==='lehrer'?'Lehrkraft':'Schüler/in'}${p.group?' · '+esc(p.group):''}</small></span>${cur().settings.avatar?`<span class="chip" title="Münzen">${COIN}<b>${w.coins}</b></span>`:''}<button type="button" class="ghost" data-act="logout">Abmelden</button>${adminOpen?'':`<button type="button" class="ghost" data-act="admin" aria-label="Admin-Bereich">${ICON}</button>`}`;
+}
+function renderWichtel(){
+ const s=cur(),sec=$('#wich');sec.hidden=!s.settings.avatar;if(!s.settings.avatar)return;
+ const p=person(),w=p?wallet(p.id):WDEF();
+ $('#ava').innerHTML=avatarSvg(w);
+ $('#wh').textContent=p?(w.name||'Der Wichtel von '+p.name):'Ihr Wichtel';
+ $('#wc').textContent=w.coins;
+ const got=p?openedBy(p).length:0,co=Math.max(0,+s.settings.coins||0),bo=Math.max(0,+s.settings.bonus||0);
+ $('#wp').textContent=p?`${got} von 24 Türchen geöffnet. Jedes neue Türchen bringt ${co} Münzen${bo?', am richtigen Tag '+bo+' extra':''}. Damit können Sie im Shop neue Sachen für Ihren Wichtel kaufen.`:'In der Admin-Vorschau sammelt der Wichtel keine Münzen.';
+ $('#ww').textContent='Trägt: '+(wornNames(w)||'nichts Besonderes');
+}
+
+/* ===== Dialoge ===== */
+function openOv(html,cls=''){if($('#ov').hidden)lastFocus=document.activeElement;const c=$('#card');c.className='card'+cls;c.innerHTML=html;$('#ov').hidden=false;c.scrollTop=0;(c.querySelector('input:not([type=checkbox])')||c.querySelector('.x'))?.focus()}
+function closeOv(){if(document.fullscreenElement)document.exitFullscreen?.().catch(()=>{});$('#ov').hidden=true;$('#card').innerHTML='';if(lastFocus&&document.contains(lastFocus))lastFocus.focus()}
+let tt=0;function toast(s){const e=$('#toast');e.textContent=s;e.hidden=false;clearTimeout(tt);tt=setTimeout(()=>e.hidden=true,4000)}
+const head=(n,title,extra='')=>{const c=bcol(n);return `<div class="chd" style="--hc:${c.bc};color:${c.nc}"><span class="num">${n}</span><h2>${esc(title)}</h2>${extra}${XBTN}</div>`};
+const plainHead=t=>`<div class="chd"><h2>${esc(t)}</h2>${XBTN}</div>`;
+function notYet(n){const d=doorDate(st,n),k=dayDiff(today(),d);openOv(head(n,'Türchen '+n)+`<div class="cbody"><p>Dieses Türchen öffnet sich erst am <b>${esc(fmtDate(d,{weekday:'long',day:'numeric',month:'long'}))}</b>.</p><p class="hint">Noch ${k} ${k===1?'Tag':'Tage'} Geduld.</p><div class="acts"><button type="button" class="btn full" data-act="close">Verstanden</button></div></div>`)}
+
+function clickDoor(n){
+ if(adminOpen){showContent(n,draft,0);return}
+ const p=person();if(!p){render();return}
+ if(openedBy(p).includes(n)&&st.settings.reviewOpen){showContent(n,st,0);return}
+ if(!reachable(st,n)){notYet(n);return}
+ if(st.settings.codeMode==='door'){
+  openOv(head(n,'Türchen '+n)+`<div class="cbody" id="fdoor" data-n="${n}"><p>Geben Sie den Code für Türchen ${n} ein.</p><label class="f" for="ccode">Türchen-Code</label><input class="inp codein" id="ccode" autocomplete="off" autocapitalize="characters" spellcheck="false" enterkeyhint="go"><p class="msg" id="cmsg" aria-live="polite"></p><div class="acts"><button type="button" class="btn full" data-act="doorgo">Türchen öffnen</button></div></div>`);return;
+ }
+ const lk=isToday(st,n)?null:lockOf(lkey(p,n));
+ if(lk){openOv(head(n,'Türchen '+n)+`<div class="cbody"><p>${lk.door?'Sie haben schon Türchen '+(+lk.door)+' geöffnet. ':''}Das nächste Türchen können Sie ab <b>${esc(fmtTime(lk.until))}</b> öffnen.</p><div class="acts">${lk.door?`<button type="button" class="btn" data-act="view" data-n="${+lk.door}">Türchen ${+lk.door} ansehen</button>`:''}<button type="button" class="btn sec" data-act="close">Schließen</button></div></div>`);return}
+ openOv(head(n,'Türchen '+n)+`<div class="cbody"><p>Möchten Sie Türchen ${n} jetzt öffnen?</p><p class="hint">${esc(lockText(st.settings))}</p><div class="acts"><button type="button" class="btn" data-act="confirm" data-n="${n}">Öffnen</button><button type="button" class="btn sec" data-act="close">Abbrechen</button></div></div>`);
+}
+function submitDoor(n){
+ unlockAudio();const inp=$('#ccode'),m=$('#cmsg'),t=tooMany();
+ if(t){m.textContent=waitMsg(t);return}
+ const r=lookup(inp.value);
+ if(r.err){if(r.bad)fail();m.textContent=r.err;inp.select();return}
+ if(r.n!==n){m.textContent='Das ist der Code für Türchen '+r.n+'.';return}
+ okTry();const p=r.p;
+ if(openedBy(p).includes(n)){switchTo(p);closeOv();render();showContent(n,st,0);return}
+ const lk=lockOf(lkey(p,n));if(lk){m.textContent='Dieser Code ist gesperrt bis '+fmtTime(lk.until)+'.';return}
+ switchTo(p);reveal(n,recordOpen(p,n));
+}
+function switchTo(p){if(ss.get('who')!==p.id){ss.set('who',p.id);renderWho();toast('Angemeldet als '+p.name+'.')}}
+function submitLogin(){
+ unlockAudio();const inp=$('#lcode'),m=$('#lmsg'),t=tooMany();m.textContent='';
+ if(t){m.textContent=waitMsg(t);return}
+ const r=lookup(inp.value);
+ if(r.err){if(r.bad)fail();m.textContent=r.err;inp.select();return}
+ okTry();const p=r.p,n=r.n;
+ if(n){const lk=lockOf(lkey(p,n));if(lk&&!openedBy(p).includes(n)){m.textContent='Dieser Code wurde schon benutzt und ist gesperrt bis '+fmtTime(lk.until)+'.';return}}
+ ss.set('who',p.id);inp.value='';render();buildSnow();window.scrollTo(0,0);
+ const go=()=>{if(n)setTimeout(()=>{if(openedBy(p).includes(n)){showContent(n,st,0);return}if(!reachable(st,n)){notYet(n);return}reveal(n,recordOpen(p,n))},450)};
+ if(st.settings.avatar&&!wallet(p.id).made)setTimeout(()=>openMake(p,go),350);else go();
+}
+function reveal(n,amt){
+ closeOv();const cell=$('#grid').querySelector(`.door[data-n="${n}"]`)?.parentElement,rm=matchMedia('(prefers-reduced-motion: reduce)').matches;
+ if(cell){cell.classList.remove('today');cell.querySelector('.tag')?.remove();cell.classList.add('open');cell.scrollIntoView({block:'nearest',behavior:rm?'auto':'smooth'})}
+ chime();
+ setTimeout(()=>{render();showContent(n,st,amt);if(amt)setTimeout(coinSnd,250)},rm?0:900);
+}
+function showContent(n,s,amt){
+ const d=s.doors[n-1],files=d.files.map(f=>Object.assign({},f,{u:fileUrl(f),type:String(f.type||'')})).filter(f=>f.u),p=person();
+ const paras=String(d.text||'').trim().split(/\n\s*\n/).filter(Boolean).map(x=>'<p>'+esc(x.trim()).replace(/\n/g,'<br>')+'</p>').join('');
+ const imgs=files.filter(f=>/^image\//.test(f.type)),vids=files.filter(f=>/^video\//.test(f.type)),docs=files.filter(f=>!/^(image|video)\//.test(f.type));
+ const fh=files.length?'<div class="files">'+vids.map(f=>`<figure class="file big"><video controls preload="metadata" src="${esc(f.u)}"></video><figcaption>${esc(f.name)}</figcaption></figure>`).join('')
+  +imgs.map(f=>`<figure class="file${imgs.length===1?' big':''}"><a href="${esc(f.u)}" target="_blank" rel="noopener"><img src="${esc(f.u)}" alt="${esc(f.name)}" loading="lazy"></a></figure>`).join('')
+  +docs.map(f=>`<a class="file doc" href="${esc(f.u)}" target="_blank" rel="noopener"><b>${kind(f.type)}</b><span>${esc(f.name)}</span><small>${esc(size(f.size))} · öffnen</small></a>`).join('')+'</div>':'';
+ const link=/^https:\/\/\S+$/i.test(d.link||'')?`<a class="btn" href="${esc(d.link)}" target="_blank" rel="noopener">${esc(d.linkLabel||'Link öffnen')}</a>`:'';
+ const empty=paras||fh||link?'':'<p class="hint">Hinter diesem Türchen ist noch nichts eingetragen.</p>';
+ const earn=amt&&p?`<span class="earn">${COIN}+${amt} Münzen für ${esc(p.name)}</span>`:'';
+ openOv(head(n,d.title||'Türchen '+n,`<button type="button" class="x" data-act="fs" aria-label="Vollbild">${FSI}</button>`)+`<div class="cbody">${earn}${paras}${fh}${empty}<div class="acts">${link}${amt&&p?'<button type="button" class="btn sec" data-act="shop">Zum Outfit-Shop</button>':''}<button type="button" class="btn sec" data-act="close">Schließen</button></div></div>`,' wide');
+}
+function askAdmin(){openOv(plainHead('Admin-Bereich')+`<div class="cbody" id="fadmin"><label class="f" for="acode">Admin-Code</label><input class="inp codein" id="acode" type="password" autocomplete="off" spellcheck="false" enterkeyhint="go"><p class="msg" id="cmsg" aria-live="polite"></p><div class="acts"><button type="button" class="btn full" data-act="admingo">Anmelden</button></div></div>`)}
+function submitAdmin(){const m=$('#cmsg'),t=tooMany();if(t){m.textContent=waitMsg(t);return}if(hashCode($('#acode').value)!==st.adminHash){fail();m.textContent='Der Admin-Code stimmt nicht.';$('#acode').select();return}okTry();closeOv();openAdmin()}
+
+/* ===== Outfit-Shop ===== */
+function openShop(){mk=null;shopTry=null;openOv(shopHtml(),' wide')}
+let mk=null;
+function lookFields(w,on){const sw=(act,arr,v,lab)=>`<div class="swatches">${arr.map((c,i)=>`<button type="button" class="swatch" style="background:${c}" data-act="${act}" data-i="${i}" aria-pressed="${v===i}" aria-label="${lab} ${i+1}"${on?'':' disabled'}></button>`).join('')}</div>`;
+ return `<h3 class="f" style="margin-top:4px">Hautfarbe</h3>${sw('skin',SKIN,w.skin,'Hautfarbe')}<h3 class="f">Haarfarbe</h3>${sw('hair',HAIR,w.hair,'Haarfarbe')}<h3 class="f">Farbe des Strickpullis</h3>${sw('knit',KNIT,w.knit,'Pullifarbe')}<label class="f" for="wname">Name des Wichtels</label><input class="inp" id="wname" maxlength="30" value="${esc(w.name)}" placeholder="z. B. Flocke"${on?'':' disabled'}><p class="hint">Aussehen und Name sind kostenlos.</p>`}
+function openMake(p,then){mk={p,then};openOv(makeHtml(),' wide')}
+function makeHtml(){const p=mk.p,w=wallet(p.id);return `<div class="chd"><h2>Ihr Wichtel</h2>${XBTN}</div><div class="shop"><div class="sprev">${avatarSvg(w)}<p class="hint">${esc(w.name||'Wichtel von '+p.name)}</p></div><div><p style="margin:0;font-size:17px">Willkommen, ${esc(p.name)}! Gestalten Sie zuerst Ihren Wichtel. Für jedes Türchen sammelt er Münzen, mit denen Sie im Shop Mützen, Pullis und mehr kaufen können.</p>${lookFields(w,true)}<div class="acts"><button type="button" class="btn" data-act="makedone">Los geht’s</button></div></div></div>`}
+function finishMake(){const m=mk;mk=null;if(!m)return;const w=wallet(m.p.id);w.made=true;saveWallet(m.p.id,w);closeOv();render();if(m.then)m.then()}
+const dismiss=()=>{if(mk)finishMake();else closeOv()};
+function shopHtml(){
+ const p=adminOpen?null:person(),w=p?wallet(p.id):WDEF(),tryIt=shopTry&&ITEM[shopTry]&&ITEM[shopTry].cat===shopCat?ITEM[shopTry]:null;
+ let body;
+ if(shopCat==='look'){
+  body=lookFields(w,!!p);
+ }else{
+  const items=SHOP.filter(i=>i.cat===shopCat);
+  body=`<div class="items">${items.map(i=>{const own=w.owned.includes(i.id),worn=w.wear[i.cat]===i.id,pr=price(i);return `<button type="button" class="item" data-act="try" data-id="${i.id}" aria-pressed="${!!tryIt&&tryIt.id===i.id}">${avatarSvg(w,i.id,VB[i.cat])}<b>${esc(i.n)}</b><small class="${own?'own':''}">${worn?'Angezogen':own?'Im Schrank':pr?pr+' Münzen':'Gratis'}</small></button>`}).join('')}</div>`;
+  let bar='<p class="hint" style="font-weight:400">Tippen Sie ein Teil an, um es anzuprobieren.</p>';
+  if(tryIt){const own=w.owned.includes(tryIt.id),worn=w.wear[tryIt.cat]===tryIt.id,pr=price(tryIt);
+   if(!p)bar=`<p>${esc(tryIt.n)}</p><span class="hint">Zum Einkaufen müssen Sie mit Ihrem Code angemeldet sein.</span>`;
+   else if(worn)bar=`<p>${esc(tryIt.n)} trägt Ihr Wichtel schon.</p>${OPTIONAL.includes(tryIt.cat)?`<button type="button" class="btn sec" data-act="off" data-id="${tryIt.id}">Ausziehen</button>`:''}`;
+   else if(own)bar=`<p>${esc(tryIt.n)} ist schon im Schrank.</p><button type="button" class="btn" data-act="wear" data-id="${tryIt.id}">Anziehen</button>`;
+   else if(w.coins>=pr)bar=`<p>${esc(tryIt.n)}</p><button type="button" class="btn" data-act="buy" data-id="${tryIt.id}">${pr?'Kaufen für '+pr+' Münzen':'Gratis nehmen'}</button>`;
+   else bar=`<p>${esc(tryIt.n)} kostet ${pr} Münzen. Es fehlen noch ${pr-w.coins}.</p><button type="button" class="btn" disabled>Kaufen</button>`;
+  }
+  body+=`<div class="sbar">${bar}</div>`;
+ }
+ return `<div class="chd"><h2>Outfit-Shop</h2><span class="chip" style="background:rgba(255,255,255,.16)">${COIN}<b>${w.coins}</b></span>${XBTN}</div><div class="shop"><div class="sprev">${avatarSvg(w,tryIt?tryIt.id:null)}<p class="hint">${p?esc(w.name||'Wichtel von '+p.name):'Vorschau'}</p></div><div><div class="cats seg" role="group">${CATS.map(([k,l])=>`<button type="button" data-act="cat" data-v="${k}" aria-pressed="${k===shopCat}">${l}</button>`).join('')}</div>${body}</div></div>`;
+}
+function refreshShop(){const c=$('#card'),y=c.scrollTop;c.innerHTML=mk?makeHtml():shopHtml();c.scrollTop=y}
+function shopAct(a,b){
+ const p=person();
+ if(a==='cat'){shopCat=b.dataset.v;shopTry=null;refreshShop();return}
+ if(a==='try'){shopTry=b.dataset.id;refreshShop();return}
+ if(!p||adminOpen)return;
+ const w=wallet(p.id),it=ITEM[b.dataset.id];
+ if(a==='skin'||a==='hair'||a==='knit'){w[a]=+b.dataset.i;saveWallet(p.id,w)}
+ else if(a==='buy'&&it){const pr=price(it);if(w.owned.includes(it.id)||w.coins<pr)return;w.coins-=pr;w.owned.push(it.id);w.wear[it.cat]=it.id;saveWallet(p.id,w);coinSnd();toast(it.n+' gekauft!')}
+ else if(a==='wear'&&it&&w.owned.includes(it.id)){w.wear[it.cat]=it.id;saveWallet(p.id,w)}
+ else if(a==='off'&&it&&OPTIONAL.includes(it.cat)){w.wear[it.cat]='';saveWallet(p.id,w)}
+ refreshShop();renderWichtel();renderWho();
+}
+
+/* ===== Admin ===== */
+function openAdmin(){adminOpen=true;draft=clone(st);plain=plain||{};dirty=pendingReset=pendingCoins=closeArmed=false;newA1=newA2='';changedP=new Set();removedP=new Set();ss.set('admin','1');tab=ss.get('tab')||'doors';document.body.classList.add('ao');$('#adm').hidden=false;loadPlain();renderAdmin();render();buildSnow()}
+function closeAdmin(force){
+ if(!force&&(dirty||pendingReset||pendingCoins||newA1)&&!closeArmed){closeArmed=true;setSt('Ungespeicherte Änderungen. Nochmal auf Schließen tippen, um sie zu verwerfen.');return}
+ adminOpen=false;draft=null;ss.set('admin',null);$('#adm').hidden=true;document.body.classList.remove('ao');render();buildSnow();
+}
+async function loadPlain(){if(!db)return;try{const q=await db.collection('admin').get();q.docs.forEach(d=>{const x=d.data()||{},c=plain[d.id]||{a:'',d:{}};plain[d.id]={a:c.a||String(x.a||''),d:Object.assign({},x.d||{},c.d)}});if(adminOpen&&tab==='people')renderAdmin()}catch(e){}}
+const pl=id=>plain[id]||(plain[id]={a:'',d:{}});
+function plainOf(p,n){const c=plain[p.id];if(!c)return '';const v=n?c.d[n]:c.a;return v&&H24(v)===(n?p.h[n-1]:p.a)?v:''}
+function allHashes(s){const set=new Set();s.people.forEach(p=>{p.h.forEach(x=>x&&set.add(x));if(p.a)set.add(p.a)});return set}
+function genFor(p,n,set){let c,h,k=0;do{c=genCode();h=H24(c)}while(set.has(h)&&++k<200);set.add(h);if(n){p.h[n-1]=h;pl(p.id).d[n]=c}else{p.a=h;pl(p.id).a=c}changedP.add(p.id)}
+function ensureCodes(s){const set=allHashes(s);s.people.forEach(p=>{if(s.settings.codeMode==='door'){for(let n=1;n<=24;n++)if(!p.h[n-1])genFor(p,n,set)}else if(!p.a)genFor(p,0,set)})}
+function dirty1(){dirty=true;closeArmed=false;updBar()}
+function setSt(s){busy=s;updBar()}
+function updBar(){$('#ast').textContent=busy||(dirty||pendingReset||pendingCoins||newA1?'Ungespeicherte Änderungen':'Alles gespeichert');$('#asave').disabled=saving}
+const seg=(key,opts,v)=>`<div class="seg" role="group">${opts.map(([k,l])=>`<button type="button" data-act="seg" data-key="${key}" data-v="${k}" aria-pressed="${k===v}">${l}</button>`).join('')}</div>`;
+function upBtn(id,label,multi){const ok=!!assets&&canEdit;return `<label class="btn up${ok?'':' off'}">${label}<input type="file" id="${id}"${multi?' multiple':''} accept="${id==='bgu'?'image/*':'image/*,video/*,application/pdf,text/plain,text/csv,text/markdown,application/json'}"${ok?'':' disabled'}></label>`}
+function renderAdmin(){
+ document.querySelectorAll('.tabs [data-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===tab)));
+ const banner=!capsReady?'':!art?'<p class="banner">Diese Ansicht kann nicht speichern. Öffne den veröffentlichten Kalender auf claude.ai.</p>':!canEdit?'<p class="banner">Du kannst hier alles ansehen. Speichern und Hochladen geht nur für Besitzer und Bearbeiter des Kalenders.</p>':'';
+ const f={doors:admDoors,design:admDesign,people:admPeople,wichtel:admWichtel,settings:admSettings}[tab]||admDoors;
+ $('#abody').innerHTML=banner+f();
+ if(tab==='settings')renderLog();if(tab==='wichtel')renderBal();updBar();
+}
+function admDoors(){
+ const d=draft.doors[sel-1];
+ return `<div class="sec"><h3>Türchen wählen</h3><div class="dpick">${draft.doors.map((x,i)=>`<button type="button" data-act="sel" data-n="${i+1}" aria-pressed="${i+1===sel}" class="${x.files.length||x.link||x.openDay?'has':''}">${i+1}</button>`).join('')}</div>
+ <h3>Türchen ${sel} <span class="hint">· ${esc(fmtDate(doorDate(draft,sel),{weekday:'long',day:'numeric',month:'long'}))}</span></h3>
+ <label class="f" for="d-day">Öffnet am</label><select class="inp" id="d-day" data-k="openDay" style="max-width:300px">${Array.from({length:24},(_,i)=>{const day=i+1,dt=new Date(+draft.settings.year||2026,11,day);return `<option value="${day===sel?'':day}"${doorDay(draft,sel)===day?' selected':''}>${esc(fmtDate(dt,{weekday:'short',day:'numeric',month:'long'}))}${day===sel?' (normal)':''}</option>`}).join('')}</select><p class="hint">Zum Beispiel vor den Ferien mehrere Türchen am selben Tag öffnen.</p>
+ <label class="f" for="d-title">Überschrift</label><input class="inp" id="d-title" data-k="title" value="${esc(d.title)}" placeholder="Türchen ${sel}">
+ <label class="f" for="d-text">Text</label><textarea class="inp" id="d-text" data-k="text">${esc(d.text)}</textarea><p class="hint">Eine Leerzeile beginnt einen neuen Absatz.</p>
+ <div class="row"><div><label class="f" for="d-link">Link (optional)</label><input class="inp" id="d-link" data-k="link" value="${esc(d.link)}" placeholder="https://…" inputmode="url"></div><div><label class="f" for="d-ll">Text für den Link</label><input class="inp" id="d-ll" data-k="linkLabel" value="${esc(d.linkLabel)}" placeholder="Video ansehen"></div></div>
+ <h3>Dateien</h3>${d.files.length?`<ul class="flist">${d.files.map((f,i)=>`<li><span>${esc(f.name)} <small>${kind(String(f.type||''))} · ${esc(size(f.size))}</small></span><button type="button" class="mini del" data-act="rmfile" data-i="${i}">Entfernen</button></li>`).join('')}</ul>`:'<p class="hint">Noch keine Dateien.</p>'}
+ <div class="acts">${upBtn('fu','Dateien hochladen',true)}<button type="button" class="btn sec" data-act="preview">Vorschau</button></div>
+ <p class="hint">PDF, Bilder, Videos oder Textdateien, je bis 20 MB. Word- oder PowerPoint-Dateien vorher als PDF speichern.</p></div>`;
+}
+function admDesign(){
+ const g=draft.design,c=g.colors;
+ return `<div class="sec"><h3>Vorlagen</h3><div class="presets">${PRESETS.map((p,i)=>`<button type="button" class="preset" data-act="preset" data-i="${i}"><span class="sw">${['bg','d1','d2','acc'].map(k=>`<i style="background:${p.c[k]}"></i>`).join('')}</span>${p.n}</button>`).join('')}</div>
+ <h3>Texte</h3><label class="f" for="g-title">Titel</label><input class="inp" id="g-title" data-d="title" value="${esc(g.title)}"><label class="f" for="g-sub">Untertitel</label><input class="inp" id="g-sub" data-d="subtitle" value="${esc(g.subtitle)}"><label class="f" for="g-hint">Hinweis unter dem Codefeld</label><input class="inp" id="g-hint" data-d="loginHint" value="${esc(g.loginHint)}">
+ <h3>Farben</h3><div class="colors">${COLS.map(([k,l])=>`<label>${l}<input type="color" data-c="${k}" value="${hex(c[k],k)}"></label>`).join('')}</div><p class="hint">Die Farben färben auch das Winterbild auf dem Kalender.</p>
+ <h3>Schrift</h3><select class="inp" data-d="font" aria-label="Schrift">${Object.keys(FONTS).map(f=>`<option value="${f}"${f===g.font?' selected':''}>${FL[f]}</option>`).join('')}</select>
+ <h3>Anordnung der Türchen</h3>${seg('order',[['mix','Gemischt wie ein echter Kalender'],['seq','Der Reihe nach']],g.order)}
+ <h3>Effekte</h3><label class="tog"><input type="checkbox" data-d="snow"${g.snow?' checked':''}> Schneefall</label><label class="tog"><input type="checkbox" data-d="sound"${g.sound?' checked':''}> Glöckchen-Klang beim Öffnen</label>
+ <h3>Hintergrundbild der Seite</h3>${g.bgImage?`<ul class="flist"><li><span>${esc(g.bgImage.name||'Bild')}</span><button type="button" class="mini del" data-act="rmbg">Entfernen</button></li></ul>`:'<p class="hint">Ohne eigenes Bild erscheint der Sternenhimmel.</p>'}
+ <div class="acts">${upBtn('bgu','Bild hochladen')}<button type="button" class="btn sec" data-act="resetdesign">Design zurücksetzen</button></div></div>`;
+}
+function admPeople(){
+ const s=draft.settings,all=draft.people,q=pq.trim().toLowerCase();
+ const list=all.map((p,i)=>[p,i]).filter(([p])=>(pf==='all'||p.role===pf)&&(!q||(p.name+' '+p.group).toLowerCase().includes(q)));
+ const nT=all.filter(p=>p.role==='lehrer').length,nS=all.length-nT;
+ return `<div class="sec"><h3>Personen</h3><p class="hint">${nT} ${nT===1?'Lehrkraft':'Lehrkräfte'} und ${nS} ${nS===1?'Schüler/in':'Schüler/innen'}. ${s.codeMode==='door'?'Jede Person hat für jedes der 24 Türchen einen eigenen Code.':'Jede Person hat einen Code für alle Türchen.'} Die Art der Codes stellst du unter Einstellungen ein.</p>
+ <div class="acts" style="margin-top:10px">${seg('pf',[['all','Alle'],['lehrer','Lehrkräfte'],['schueler','Schüler']],pf)}<input class="inp" id="pq" value="${esc(pq)}" placeholder="Name oder Klasse suchen" aria-label="Suchen" style="flex:1 1 180px"></div>
+ <div class="plist">${list.map(([p,i])=>personRow(p,i)).join('')||'<p class="hint">Keine Personen gefunden.</p>'}</div>
+ <h3>Personen hinzufügen</h3><label class="f" for="pnames">Namen, eine Person pro Zeile</label><textarea class="inp" id="pnames" style="min-height:110px" placeholder="Frau Becker&#10;Herr Yilmaz&#10;Frau Schmidt"></textarea>
+ <div class="row"><div><label class="f" for="prole">Rolle</label><select class="inp" id="prole"><option value="lehrer">Lehrkraft</option><option value="schueler">Schüler/in</option></select></div><div><label class="f" for="pgroup">Klasse oder Gruppe</label><input class="inp" id="pgroup" placeholder="z. B. 3a"></div></div>
+ <div class="acts"><button type="button" class="btn" data-act="addpeople">Hinzufügen und Codes erzeugen</button></div>
+ <h3>Codes weitergeben</h3><div class="acts" style="margin-top:0"><button type="button" class="btn sec" data-act="dlcards">Codekarten zum Drucken</button><button type="button" class="btn sec" data-act="dlcsv">Tabelle (CSV)</button><button type="button" class="btn sec" data-act="copyall">Alle Codes kopieren</button></div>
+ <p class="hint">Neue Codes gelten erst nach dem Speichern. Die Codekarten sind eine Datei, die du im Browser öffnest und ausdruckst.</p></div>`;
+}
+function personRow(p,i){
+ const open=openP.has(p.id),door=draft.settings.codeMode==='door',offN=p.off.length;
+ let codes='';
+ if(open){
+  codes=door?`<div class="cgrid">${Array.from({length:24},(_,k)=>{const n=k+1,v=plainOf(p,n),off=p.off.includes(n);return `<div class="cchip${off?' off':''}"><b>${n}</b><span class="mono">${v?esc(v):'verborgen'}</span><input type="checkbox" data-coff="${i}:${n}"${off?'':' checked'} aria-label="Code für Türchen ${n} aktiv" title="aktiv"><button type="button" data-act="regen" data-i="${i}" data-n="${n}" aria-label="Neuer Code für Türchen ${n}">neu</button></div>`}).join('')}</div><div class="acts"><button type="button" class="btn sec" data-act="regenall" data-i="${i}">Alle 24 Codes neu erzeugen</button><button type="button" class="btn sec" data-act="copyp" data-i="${i}">Codes kopieren</button></div>`
+  :`<div class="cgrid"><div class="cchip"><b>✱</b><span class="mono">${plainOf(p,0)?esc(plainOf(p,0)):'verborgen'}</span><button type="button" data-act="regen" data-i="${i}" data-n="0">neu</button></div></div>`;
+ }
+ return `<div class="prow${p.on?'':' offp'}"><div class="pmain"><input class="inp" data-pn="${i}" value="${esc(p.name)}" aria-label="Name"><select class="inp" data-prl="${i}" aria-label="Rolle"><option value="schueler"${p.role==='schueler'?' selected':''}>Schüler/in</option><option value="lehrer"${p.role==='lehrer'?' selected':''}>Lehrkraft</option></select><input class="inp" data-pg="${i}" value="${esc(p.group)}" placeholder="Klasse" aria-label="Klasse"></div>
+ <div class="pact"><label class="tog"><input type="checkbox" data-pon="${i}"${p.on?' checked':''}> Aktiv${door&&offN?` <span class="hint" style="margin:0">(${offN} ${offN===1?'Code':'Codes'} aus)</span>`:''}</label><button type="button" class="mini" data-act="pcodes" data-id="${p.id}" aria-expanded="${open}">${open?'Codes ausblenden':'Codes'}</button><button type="button" class="mini del" data-act="prm" data-i="${i}">${rmArm===p.id?'Wirklich entfernen?':'Entfernen'}</button></div>${codes}</div>`;
+}
+function admWichtel(){
+ const s=draft.settings;
+ return `<div class="sec"><h3>Wichtel und Münzen</h3><label class="tog"><input type="checkbox" data-s="avatar"${s.avatar?' checked':''}> Wichtel mit Münzen und Outfit-Shop anzeigen</label>
+ <div class="row"><div><label class="f" for="s-co">Münzen pro Türchen</label><input class="inp" id="s-co" type="number" min="0" max="500" data-s="coins" value="${+s.coins||0}"></div><div><label class="f" for="s-bo">Extra am richtigen Tag</label><input class="inp" id="s-bo" type="number" min="0" max="500" data-s="bonus" value="${+s.bonus||0}"></div></div>
+ <p class="hint">Jede Person hat einen eigenen Wichtel. Münzen gibt es nur einmal pro Türchen.</p>
+ <h3>Preise im Shop</h3><div class="prices">${SHOP.map(i=>`<label><span>${esc(i.n)}</span><input class="inp" type="number" min="0" max="9999" data-price="${i.id}" value="${price(i,draft)}" aria-label="Preis ${esc(i.n)}"></label>`).join('')}</div>
+ <h3>Kontostände</h3><div id="wbal" class="scroll"></div>
+ <h3>Zurücksetzen</h3><button type="button" class="btn sec" data-act="resetcoins" aria-pressed="${pendingCoins}">${pendingCoins?'Zurücksetzen ist vorgemerkt (rückgängig)':'Münzen und Outfits aller Personen zurücksetzen'}</button><p class="hint">Wird beim Speichern wirksam.</p></div>`;
+}
+function admSettings(){
+ const s=draft.settings;
+ return `<div class="sec"><h3>Art der Codes</h3>${seg('s:codeMode',[['door','Ein Code pro Person und Türchen'],['person','Ein Code pro Person']],s.codeMode)}
+ <p class="hint">${s.codeMode==='door'?'Mit dem Code für Türchen 5 meldet man sich an und öffnet genau dieses Türchen.':'Mit dem eigenen Code meldet man sich an und öffnet dann ein Türchen pro Sperrzeit.'} Fehlende Codes werden beim Umstellen automatisch erzeugt.</p>
+ <h3>Sperre nach dem Öffnen</h3>${seg('s:lockMode',[['off','Aus'],['midnight','Bis zum nächsten Tag'],['24h','24 Stunden'],['hours','Eigene Dauer']],s.lockMode)}
+ ${s.lockMode==='hours'?`<label class="f" for="s-h">Dauer in Stunden</label><input class="inp" id="s-h" type="number" min="1" max="720" data-s="lockHours" value="${+s.lockHours||24}" style="max-width:160px">`:''}
+ <p class="hint">${esc(lockText(s))} Wer den Kalender nur über einen Ansehen-Link öffnet, wird pro Gerät und Browser gesperrt.</p>
+ <h3>Datum und Ansicht</h3><label class="tog"><input type="checkbox" data-s="dateLock"${s.dateLock?' checked':''}> Türchen erst ab ihrem Datum öffnen</label>
+ <label class="f" for="s-y">Jahr</label><input class="inp" id="s-y" type="number" min="2024" max="2100" data-s="year" value="${+s.year||2026}" style="max-width:160px">
+ <label class="tog"><input type="checkbox" data-s="reviewOpen"${s.reviewOpen?' checked':''}> Geöffnete Türchen ohne Code wieder ansehen</label>
+ <h3>Kalender zurücksetzen</h3><button type="button" class="btn sec" data-act="resetall" aria-pressed="${pendingReset}">${pendingReset?'Zurücksetzen ist vorgemerkt (rückgängig)':'Alle Sperren und geöffneten Türchen zurücksetzen'}</button><p class="hint">Wird beim Speichern wirksam, auf allen Geräten beim nächsten Laden.</p>
+ <h3>Admin-Code ändern</h3><div class="row"><div><label class="f" for="ac1">Neuer Admin-Code</label><input class="inp" id="ac1" type="password" data-a="1" value="${esc(newA1)}" autocomplete="new-password"></div><div><label class="f" for="ac2">Wiederholen</label><input class="inp" id="ac2" type="password" data-a="2" value="${esc(newA2)}" autocomplete="new-password"></div></div><p class="hint">Mindestens 6 Zeichen. Leer lassen, um den bisherigen Code zu behalten.</p>
+ <h3>Letzte Öffnungen</h3><div id="alog" class="scroll"></div>
+ <h3>Testen</h3><label class="f" for="pv">Datum simulieren (nur in diesem Browser)</label><div class="acts" style="margin-top:0"><input class="inp" type="date" id="pv" value="${esc(ss.get('preview')||'')}" style="max-width:220px"><button type="button" class="btn sec" data-act="clearlocal">Sperren auf diesem Gerät löschen</button></div></div>`;
+}
+const pname=id=>{const p=(draft||st).people.find(x=>x.id===id);return p?p.name+(p.group?' ('+p.group+')':''):'Gelöschte Person'};
+function renderLog(){
+ const el=$('#alog');if(!el)return;
+ if(!db){el.innerHTML='<p class="hint">Verfügbar, wenn du auf claude.ai angemeldet bist.</p>';return}
+ const rows=Object.values(srvLocks).filter(x=>x&&x.epoch===st.epoch).sort((a,b)=>b.at-a.at).slice(0,60);
+ if(!rows.length){el.innerHTML='<p class="hint">Noch keine Einträge. Hier erscheinen Öffnungen von Personen, die mit Schreibrechten angemeldet sind.</p>';return}
+ el.innerHTML=`<table class="log"><thead><tr><th>Person</th><th class="r">Türchen</th><th>Geöffnet</th><th>Gesperrt bis</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${esc(pname(x.pid))}</td><td class="r">${+x.door||'–'}</td><td>${esc(fmtTime(+x.at))}</td><td>${+x.until>Date.now()?esc(fmtTime(+x.until)):'frei'}</td></tr>`).join('')}</tbody></table>`;
+}
+function renderBal(){
+ const el=$('#wbal');if(!el)return;
+ if(!db){el.innerHTML='<p class="hint">Verfügbar, wenn du auf claude.ai angemeldet bist.</p>';return}
+ const rows=Object.entries(srvWallets).filter(([,x])=>x&&x.e===st.coinEpoch).sort((a,b)=>(+b[1].coins||0)-(+a[1].coins||0));
+ if(!rows.length){el.innerHTML='<p class="hint">Noch keine Kontostände auf dem Server. Personen mit reinem Ansehen-Link sammeln ihre Münzen auf ihrem Gerät.</p>';return}
+ el.innerHTML=`<table class="log"><thead><tr><th>Person</th><th class="r">Münzen</th><th class="r">Türchen</th><th>Trägt</th></tr></thead><tbody>${rows.map(([id,x])=>`<tr><td>${esc(pname(id))}</td><td class="r">${+x.coins||0}</td><td class="r">${Array.isArray(x.got)&&x.ge===st.epoch?x.got.length:0}</td><td>${esc(Object.values(x.wear||{}).map(v=>ITEM[v]?ITEM[v].n:'').filter(Boolean).join(', '))}</td></tr>`).join('')}</tbody></table>`;
+}
+function codesText(ps){const door=draft.settings.codeMode==='door';return ps.map(p=>p.name+(p.group?' ('+p.group+')':'')+'\n'+(door?Array.from({length:24},(_,k)=>'  Türchen '+(k+1)+': '+(plainOf(p,k+1)||'(verborgen)')+(p.off.includes(k+1)?' – deaktiviert':'')).join('\n'):'  Code: '+(plainOf(p,0)||'(verborgen)'))).join('\n\n')}
+function csvText(){const door=draft.settings.codeMode==='door',q=v=>'"'+String(v).replace(/"/g,'""')+'"',rows=[['Name','Rolle','Klasse','Türchen','Code','Aktiv']];draft.people.forEach(p=>{const role=p.role==='lehrer'?'Lehrkraft':'Schüler/in';if(door)for(let n=1;n<=24;n++)rows.push([p.name,role,p.group,n,plainOf(p,n)||'(verborgen)',p.on&&!p.off.includes(n)?'ja':'nein']);else rows.push([p.name,role,p.group,'alle',plainOf(p,0)||'(verborgen)',p.on?'ja':'nein'])});return '﻿'+rows.map(r=>r.map(q).join(';')).join('\r\n')}
+function cardsHtml(){const door=draft.settings.codeMode==='door';return `<!DOCTYPE html><html lang="de"><head><meta charset="utf-8"><title>Codekarten</title><style>body{font:14px/1.4 Arial,sans-serif;margin:18px;color:#111}h1{font-size:20px;margin:0 0 14px}.c{break-inside:avoid;border:2px dashed #999;border-radius:14px;padding:12px 16px;margin:0 0 14px}.c h2{margin:0 0 8px;font-size:18px}.c p{margin:0 0 8px;color:#555}.g{display:grid;grid-template-columns:repeat(4,1fr);gap:5px 14px}.g span{font-family:monospace;font-size:14px}.g b{display:inline-block;width:2.4em;font-family:Arial}.off{text-decoration:line-through;color:#999}</style></head><body><h1>${esc(draft.design.title)}: Codes</h1>${draft.people.filter(p=>p.on).map(p=>`<div class="c"><h2>${esc(p.name)}${p.group?' · '+esc(p.group):''}</h2><p>${door?'Für jedes Türchen gibt es einen eigenen Code. Einfach auf der Startseite eingeben.':'Mit diesem Code melden Sie sich an und öffnen jeden Tag ein Türchen.'}</p>${door?`<div class="g">${Array.from({length:24},(_,k)=>`<span class="${p.off.includes(k+1)?'off':''}"><b>${k+1}.</b>${esc(plainOf(p,k+1)||'—')}</span>`).join('')}</div>`:`<p style="font:700 20px monospace;color:#111">${esc(plainOf(p,0)||'—')}</p>`}</div>`).join('')}</body></html>`}
+async function offerFile(name,data,fallback){if(downloads){try{await downloads.save({filename:name,data});return}catch(e){}}try{await navigator.clipboard.writeText(fallback);toast('Herunterladen geht hier nicht. Die Codes wurden stattdessen kopiert.')}catch(e){toast('Herunterladen geht hier nicht.')}}
+function buildHtml(s){
+ const json=JSON.stringify(s).replace(/</g,'\\u003c');
+ return '<!DOCTYPE html>\n<html lang="de">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>Schul-Adventskalender</title>\n<style id="css">'+CSS+'</style>\n</head>\n<body>\n<div id="root"></div>\n<script type="application/json" id="state">'+json+'<\/script>\n<script id="app-js">'+JS+'<\/script>\n</body>\n</html>\n';
+}
+async function save(){
+ if(saving)return;
+ if(!dirty&&!pendingReset&&!pendingCoins&&!newA1){toast('Es gibt nichts zu speichern.');return}
+ if(newA1||newA2){if(norm(newA1).length<6){toast('Der Admin-Code braucht mindestens 6 Zeichen.');return}if(norm(newA1)!==norm(newA2)){toast('Die beiden Admin-Codes stimmen nicht überein.');return}}
+ if(draft.people.some(p=>!p.name.trim())){toast('Jede Person braucht einen Namen.');return}
+ if(!art||!canEdit){toast('Speichern geht nur für Besitzer und Bearbeiter des Kalenders.');return}
+ saving=true;setSt('Speichert …');
+ ensureCodes(draft);
+ const next=clone(draft);next.sample=false;
+ if(newA1)next.adminHash=hashCode(newA1);
+ if(pendingReset){next.epoch=(+next.epoch||1)+1;if(db)for(const k of Object.keys(srvLocks)){try{await db.doc('locks/'+k).delete()}catch(e){}}}
+ if(pendingCoins){next.coinEpoch=(+next.coinEpoch||1)+1;if(db)for(const k of Object.keys(srvWallets)){try{await db.doc('wallets/'+k).delete()}catch(e){}}}
+ if(db){for(const id of changedP){if(!next.people.some(p=>p.id===id))continue;const c=pl(id);try{await db.doc('admin/'+id).set({a:c.a||'',d:c.d||{}})}catch(e){}}for(const id of removedP){try{await db.doc('admin/'+id).delete()}catch(e){}}}
+ try{ss.set('admin','1');ss.set('tab',tab);await art.publish(buildHtml(next));setSt('Gespeichert. Die Seite lädt neu …')}
+ catch(e){saving=false;const c=e&&e.code;setSt('');toast(c==='conflict'?'Jemand anderes hat gerade gespeichert. Die Seite lädt neu, bitte die Änderung danach erneut eintragen.':c==='not_writer'||c==='not_granted'?'Keine Berechtigung zum Speichern.':'Speichern hat nicht geklappt. Bitte noch einmal versuchen.')}
+}
+
+/* ===== Ereignisse ===== */
+document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b||b.closest('#abody')||b.closest('#card')||b.closest('#start')&&b.dataset.act==='login')return;const a=b.dataset.act;
+ if(a==='admin'&&!adminOpen)askAdmin();
+ if(a==='logout'){ss.set('who',null);render();buildSnow();toast('Abgemeldet.')}
+ if(a==='shop'){shopCat='hat';openShop()}
+ if(a==='look'){shopCat='look';openShop()}
+});
+$('#grid').addEventListener('click',e=>{const b=e.target.closest('[data-n]');if(b)clickDoor(+b.dataset.n)});
+$('#start').addEventListener('click',e=>{if(e.target.closest('[data-act="login"]'))submitLogin()});
+document.addEventListener('keydown',e=>{if(e.key!=='Enter'||e.isComposing)return;const id=e.target&&e.target.id;if(id==='lcode'){e.preventDefault();submitLogin()}else if(id==='ccode'){e.preventDefault();submitDoor(+$('#fdoor').dataset.n)}else if(id==='acode'){e.preventDefault();submitAdmin()}});
+$('#ov').addEventListener('click',e=>{if(e.target.id==='ov')dismiss()});
+$('#card').addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act;
+ if(a==='close')dismiss();
+ else if(a==='makedone')finishMake();
+ else if(a==='doorgo')submitDoor(+$('#fdoor').dataset.n);
+ else if(a==='admingo')submitAdmin();
+ else if(a==='view'){showContent(+b.dataset.n,st,0)}
+ else if(a==='confirm'){unlockAudio();const p=person(),n=+b.dataset.n;if(p)reveal(n,recordOpen(p,n))}
+ else if(a==='shop')openShop();
+ else if(a==='fs'){const c=$('#card');if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});else if(c.requestFullscreen)c.requestFullscreen().catch(()=>toast('Vollbild ist hier nicht möglich.'));else toast('Vollbild ist hier nicht möglich.')}
+ else shopAct(a,b);
+});
+let nameT=0;
+$('#card').addEventListener('input',e=>{if(e.target.id!=='wname')return;const p=person();if(!p)return;const v=e.target.value.slice(0,30);clearTimeout(nameT);nameT=setTimeout(()=>{const w=wallet(p.id);w.name=v;saveWallet(p.id,w);renderWichtel();const h=$('.sprev .hint');if(h)h.textContent=v||'Wichtel von '+p.name},400)});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#ov').hidden)dismiss()});
+$('#aclose').addEventListener('click',()=>closeAdmin());
+$('#adiscard').addEventListener('click',()=>{draft=clone(st);dirty=pendingReset=pendingCoins=closeArmed=false;newA1=newA2='';busy='';changedP=new Set();removedP=new Set();render();buildSnow();renderAdmin()});
+$('#asave').addEventListener('click',save);
+document.querySelector('.tabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(!b)return;tab=b.dataset.tab;ss.set('tab',tab);renderAdmin();$('#abody').scrollTop=0});
+const ab=$('#abody');
+ab.addEventListener('input',e=>{const t=e.target,ds=t.dataset;
+ if(t.id==='pq'){pq=t.value;const pos=t.selectionStart;renderAdmin();const n=$('#pq');n.focus();try{n.setSelectionRange(pos,pos)}catch(err){}return}
+ if(ds.k!=null){draft.doors[sel-1][ds.k]=ds.k==='openDay'?(t.value?+t.value:''):t.value;dirty1();if(ds.k==='openDay'){render();renderAdmin()}}
+ else if(ds.d!=null){draft.design[ds.d]=t.type==='checkbox'?t.checked:t.value;dirty1();if(ds.d==='snow')buildSnow();render()}
+ else if(ds.c!=null){draft.design.colors[ds.c]=t.value;dirty1();render()}
+ else if(ds.s!=null){draft.settings[ds.s]=t.type==='checkbox'?t.checked:t.type==='number'?+t.value:t.value;dirty1();render()}
+ else if(ds.price!=null){draft.settings.prices[ds.price]=t.value===''?null:Math.max(0,Math.floor(+t.value||0));dirty1()}
+ else if(ds.pn!=null){draft.people[+ds.pn].name=t.value;dirty1()}
+ else if(ds.pg!=null){draft.people[+ds.pg].group=t.value;dirty1()}
+ else if(ds.prl!=null){draft.people[+ds.prl].role=t.value==='lehrer'?'lehrer':'schueler';dirty1()}
+ else if(ds.pon!=null){draft.people[+ds.pon].on=t.checked;dirty1();renderAdmin()}
+ else if(ds.coff!=null){const[i,n]=ds.coff.split(':').map(Number),p=draft.people[i];p.off=t.checked?p.off.filter(x=>x!==n):[...new Set([...p.off,n])];dirty1();t.closest('.cchip').classList.toggle('off',!t.checked)}
+ else if(ds.a!=null){if(ds.a==='1')newA1=t.value;else newA2=t.value;closeArmed=false;updBar()}
+});
+ab.addEventListener('change',async e=>{const t=e.target;
+ if(t.id==='pv'){ss.set('preview',t.value||null);render();return}
+ if(t.id!=='fu'&&t.id!=='bgu')return;
+ if(!assets){toast('Hochladen ist in dieser Ansicht nicht möglich.');return}
+ const fs=[...t.files],door=sel,bg=t.id==='bgu';t.value='';
+ for(const f of fs){
+  if(f.size>20*1048576){toast('„'+f.name+'“ ist größer als 20 MB.');continue}
+  setSt('Lädt hoch: '+f.name+' …');
+  try{const r=await assets.upload(f);const rec={id:String(r.id),url:String(r.url||''),name:f.name,type:String(r.contentType||f.type||''),size:+r.sizeBytes||f.size};if(bg)draft.design.bgImage=rec;else draft.doors[door-1].files.push(rec);dirty1()}
+  catch(err){toast('„'+f.name+'“ konnte nicht hochgeladen werden.')}
+ }
+ setSt('');render();renderAdmin();
+});
+ab.addEventListener('click',async e=>{const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act,i=+b.dataset.i;
+ if(a!=='prm')rmArm='';
+ if(a==='sel'){sel=+b.dataset.n;renderAdmin();$('#d-title')?.focus()}
+ else if(a==='rmfile'){draft.doors[sel-1].files.splice(i,1);dirty1();renderAdmin()}
+ else if(a==='preview')showContent(sel,draft,0);
+ else if(a==='preset'){draft.design.colors={...PRESETS[i].c};dirty1();render();renderAdmin()}
+ else if(a==='seg'){const k=b.dataset.key,v=b.dataset.v;if(k==='pf'){pf=v;renderAdmin();return}if(k.startsWith('s:')){draft.settings[k.slice(2)]=v;if(k==='s:codeMode')ensureCodes(draft)}else draft.design[k]=v;dirty1();render();renderAdmin()}
+ else if(a==='rmbg'){draft.design.bgImage=null;dirty1();render();renderAdmin()}
+ else if(a==='resetdesign'){draft.design=Object.assign(DEFD(),{title:draft.design.title,subtitle:draft.design.subtitle,loginHint:draft.design.loginHint});dirty1();buildSnow();render();renderAdmin()}
+ else if(a==='pcodes'){const id=b.dataset.id;openP.has(id)?openP.delete(id):openP.add(id);renderAdmin()}
+ else if(a==='prm'){const p=draft.people[i];if(rmArm!==p.id){rmArm=p.id;renderAdmin();return}rmArm='';draft.people.splice(i,1);removedP.add(p.id);changedP.delete(p.id);dirty1();renderAdmin()}
+ else if(a==='regen'){const p=draft.people[i],n=+b.dataset.n;genFor(p,n,allHashes(draft));dirty1();renderAdmin()}
+ else if(a==='regenall'){const p=draft.people[i],set=allHashes(draft);for(let n=1;n<=24;n++)genFor(p,n,set);dirty1();renderAdmin();toast('24 neue Codes für '+p.name+'. Sie gelten nach dem Speichern.')}
+ else if(a==='copyp'||a==='copyall'){const txt=codesText(a==='copyp'?[draft.people[i]]:draft.people);try{await navigator.clipboard.writeText(txt);toast('Codes kopiert.')}catch(err){toast('Kopieren geht hier nicht.')}}
+ else if(a==='addpeople'){const names=$('#pnames').value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean).slice(0,300);if(!names.length){toast('Bitte mindestens einen Namen eintragen.');return}const role=$('#prole').value==='lehrer'?'lehrer':'schueler',group=$('#pgroup').value.trim();names.forEach(n=>draft.people.push({id:newId()+rnd(1e6).toString(36),name:n.slice(0,60),role,group,on:true,h:Array(24).fill(''),off:[],a:''}));ensureCodes(draft);dirty1();renderAdmin();toast(names.length+(names.length===1?' Person':' Personen')+' hinzugefügt.')}
+ else if(a==='dlcsv')offerFile('Adventskalender-Codes.csv',csvText(),codesText(draft.people));
+ else if(a==='dlcards')offerFile('Codekarten.html',cardsHtml(),codesText(draft.people));
+ else if(a==='resetall'){pendingReset=!pendingReset;dirty1();renderAdmin()}
+ else if(a==='resetcoins'){pendingCoins=!pendingCoins;dirty1();renderAdmin()}
+ else if(a==='clearlocal'){ls.set('locks',{});ls.set('opened',{e:st.epoch,m:{}});okTry();render();toast('Sperren auf diesem Gerät gelöscht.')}
+});
+
+/* ===== Start ===== */
+index();
+if(ss.get('admin')==='1'){adminOpen=true;openAdmin()}else{render();buildSnow()}
+(async()=>{
+ const C=window.claude;
+ if(C&&typeof C.use==='function'){
+  const use=n=>Promise.resolve().then(()=>C.use(n)).catch(()=>null);
+  const [u,d,a,r,dl]=await Promise.all([use('user'),use('db'),use('assets'),use('artifact'),use('downloads')]);
+  db=d;assets=a;art=r;downloads=dl;
+  if(u){try{canEdit=!!(await u.canEdit())}catch(e){}}
+  if(db){
+   try{db.collection('locks').onSnapshot(q=>{const m={};q.docs.forEach(x=>{m[x.id]=x.data()});srvLocks=m;renderLog()},()=>{})}catch(e){}
+   try{db.collection('wallets').onSnapshot(q=>{const m={};q.docs.forEach(x=>{m[x.id]=x.data()});srvWallets=m;renderBal();if(!$('#app').hidden&&$('#ov').hidden){renderWho();renderWichtel()}},()=>{})}catch(e){}
+   if(adminOpen)loadPlain();
+  }
+ }
+ capsReady=true;if(adminOpen)renderAdmin();
+})();
+}
+</script>
+</body>
+</html>
